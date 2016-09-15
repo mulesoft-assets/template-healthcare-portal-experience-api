@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" 
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+
+
+	<flow name="get:/patient/{id}/health:api-config">
+		<http:request config-ref="ehr-system-api" path="/Patient/{id}/Condition"
+			method="GET" doc:name="Get Conditions from the EHR">
+			<http:request-builder>
+				<http:uri-param paramName="id" value="#[flowVars.id]" />
+			</http:request-builder>
+		</http:request>
+		<dw:transform-message doc:name="Create variable 'conditions'">
+			<dw:set-variable variableName="conditions"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+		</dw:transform-message>
+		<http:request config-ref="ehr-system-api"
+			path="/Patient/{id}/AllergyIntolerance" method="GET"
+			doc:name="Get Allergies from the EHR">
+			<http:request-builder>
+                <http:uri-param paramName="id" value="#[flowVars.id]"/>
+			</http:request-builder>
+		</http:request>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Log received data"/>
+		<dw:transform-message doc:name="Create variable 'allergies'">
+			<dw:set-variable variableName="allergies"><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-variable>
+		</dw:transform-message>
+
+		<dw:transform-message doc:name="Prepare response">
+			<dw:input-variable doc:sample="sample_data\string.dwl"
+				variableName="allergies" />
+			<dw:input-variable doc:sample="sample_data\string_1.dwl"
+				variableName="conditions" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%function getAllergyStatus(allergyStatus) {
+	(status: 'true') when allergyStatus == 'confirmed',
+	(status: 'false') when allergyStatus == 'refuted',
+	(status: 'NA') when allergyStatus == 'unconfirmed'
+} unless allergyStatus is :null otherwise status: null
+
+%function getConditionStatus(conditionStatus) {
+	(status: 'true') when conditionStatus == 'confirmed',
+	(status: 'false') when conditionStatus == 'refuted',
+	(status: 'NA') when conditionStatus == 'unknown'
+} unless conditionStatus is :null otherwise status: null
+---
+{
+	conditions : flowVars.conditions.entry map 
+		using(condition = $.resource)
+	{
+		id			: condition.id,
+		onsetDate 	: condition.onsetDateTime,
+		code 		: condition.code.coding[0].code,
+		system 		: condition.code.coding[0].system,
+		name 		: condition.code.coding[0].display,
+		status 		: getConditionStatus(condition.verificationStatus).status
+	} when flowVars.conditions.total > 0 otherwise [],
+	
+	allergies : flowVars.allergies.entry map 
+		using (allergy = $.resource)
+	{
+		id			: allergy.id,
+		onsetDate	: allergy.recordedDate,
+		name		: allergy.substance.coding[0].display,
+		status		: getAllergyStatus(allergy.status).status
+	} when flowVars.allergies.total > 0 otherwise []
+}]]></dw:set-payload>
+		</dw:transform-message>
+	</flow>
+
+
+	<flow name="put:/patient/{id}/health:application/json:api-config">
+        <dw:transform-message doc:name="save to var input">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	conditions: payload.conditions,
+	allergies: payload.allergies
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <scatter-gather doc:name="Scatter-Gather">
+            <processor-chain>
+                <set-payload value="#[payload.conditions]" doc:name="conditions"/>
+                <flow-ref name="upsertConditions" doc:name="upsertConditions"/>
+            </processor-chain>
+            <processor-chain>
+                <set-payload value="#[payload.allergies]" doc:name="allergies"/>
+                <flow-ref name="upsertAllergies" doc:name="upsertAllergies"/>
+            </processor-chain>
+        </scatter-gather>
+		<dw:transform-message doc:name="inform about completion">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	response: "The PUT of health information has finished."
+}]]></dw:set-payload>
+		</dw:transform-message>
+	</flow>
+    <sub-flow name="upsertConditions">
+        <foreach  doc:name="For Each Condition">
+            <enricher source="#[payload]" target="#[flowVars.conditionId]" doc:name="save to var conditionId">
+                <processor-chain doc:name="">
+                    <http:request config-ref="ehr-system-api" path="/Condition" method="GET" doc:name="GET /Condition?code=x">
+                        <http:request-builder>
+                            <http:query-param paramName="code" value="#[payload.code]"/>
+                            <http:query-param paramName="patient" value="Patient/#[flowVars.id]"/>
+                        </http:request-builder>
+                        <http:success-status-code-validator values="200,404"/>
+                    </http:request>
+                    <dw:transform-message doc:name="get EHR Condition ID">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.entry[0].resource.id when (payload.total > 0) otherwise null]]></dw:set-payload>
+                    </dw:transform-message>
+                </processor-chain>
+            </enricher>
+            <choice doc:name="Condition missing in EHR?">
+                <when expression="#[flowVars.conditionId == null]">
+                    <dw:transform-message metadata:id="ff3e7516-e3c9-4fc2-9304-1139361411db" doc:name="prepare to create">
+                        <dw:input-payload doc:sample="sample_data\health-portal-request.json"/>
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%function getVerificationStatus(conditionStatus) {
+	(status: 'confirmed') when conditionStatus == 'true',
+	(status: 'refuted') when conditionStatus == 'false',
+	(status: 'unknown') when conditionStatus == 'NA'
+} unless conditionStatus is :null otherwise status: null
+---
+{
+	resourceType: "Condition",
+	patient: {
+	  reference: "Patient/" ++ flowVars.id
+	},
+	asserter: {
+		reference: "Patient/" ++ flowVars.id
+	},
+	code: {
+	  coding: [
+	    {
+	      code: payload.code,
+	      display: payload.name,
+	      system: payload.system
+	    }
+	  ],
+	  (text: payload.name) when payload.name != null
+	},
+	(onsetDateTime: payload.onsetDate) when payload.onsetDate != null,
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></dw:set-payload>
+                    </dw:transform-message>
+                    <http:request config-ref="ehr-system-api" path="/Condition" method="POST" doc:name="POST /Condition"/>
+                </when>
+                <otherwise>
+                    <dw:transform-message doc:name="prepare for update">
+                        <dw:input-payload doc:sample="sample_data\health-portal-request.json"/>
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%function getVerificationStatus(conditionStatus) {
+	(status: 'confirmed') when conditionStatus == 'true',
+	(status: 'refuted') when conditionStatus == 'false',
+	(status: 'unknown') when conditionStatus == 'NA'
+} unless conditionStatus is :null otherwise status: null
+---
+{
+	id: flowVars.conditionId,
+	resourceType: "Condition",
+	patient: {
+	  reference: "Patient/" ++ flowVars.id
+	},
+	asserter: {
+		reference: "Patient/" ++ flowVars.id
+	},
+	code: {
+	  coding: [
+	    {
+	      code: payload.code,
+	      display: payload.name,
+	      system: payload.system
+	    }
+	  ],
+	  text: payload.name
+	},
+	(onsetDateTime: payload.onsetDate) when payload.onsetDate != null,
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></dw:set-payload>
+                    </dw:transform-message>
+                    <http:request config-ref="ehr-system-api" path="/Condition/{id}" method="PUT" doc:name="PUT /Condition/{id}">
+                        <http:request-builder>
+                            <http:uri-param paramName="id" value="#[dw('payload.id')]"/>
+                        </http:request-builder>
+                    </http:request>
+                </otherwise>
+            </choice>
+        </foreach>
+    </sub-flow>
+
+	<sub-flow name="upsertAllergies">
+        <foreach doc:name="For Each Allergy">
+            <enricher source="#[payload]" target="#[flowVars.allergyId]" doc:name="save to var allergyId">
+                <processor-chain doc:name="">
+                    <http:request config-ref="ehr-system-api" path="/AllergyIntolerance" method="GET" doc:name="GET /AllergyIntolerance?substance=x">
+                        <http:request-builder>
+                            <http:query-param paramName="substance" value="#[payload.name]"/>
+                            <http:query-param paramName="patient" value="Patient/#[flowVars.id]"/>
+                        </http:request-builder>
+                        <http:success-status-code-validator values="200,404"/>
+                    </http:request>
+                    <dw:transform-message doc:name="get EHR AllergyIntolerance ID">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload.entry[0].resource.id when (payload.total > 0) otherwise null]]></dw:set-payload>
+                    </dw:transform-message>
+                </processor-chain>
+            </enricher>
+            <choice doc:name="AllergyIntolerance missing in EHR?">
+                <when expression="#[flowVars.allergyId == null]">
+                    <dw:transform-message doc:name="prepare to create">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%function getVerificationStatus(allergyStatus) {
+	(status: 'confirmed') when allergyStatus == 'true',
+	(status: 'refuted') when allergyStatus == 'false',
+	(status: 'unconfirmed') when allergyStatus == 'NA'
+} unless allergyStatus is :null otherwise status: null
+---
+{
+	resourceType: "AllergyIntolerance",
+	patient: {
+	  reference: "Patient/" ++ flowVars.id
+	},
+	reporter: {
+		reference: "Patient/" ++ flowVars.id
+	},
+	substance: {
+	  coding: [
+	    {
+	      display: payload.name
+	    }
+	  ]
+	},
+	(recordedDate: payload.onsetDate) when payload.onsetDate != null,
+	status: getVerificationStatus(payload.status).status
+}]]></dw:set-payload>
+                    </dw:transform-message>
+                    <http:request config-ref="ehr-system-api" path="/AllergyIntolerance" method="POST" doc:name="POST /AllergyIntolerance"/>
+                </when>
+                <otherwise>
+                    <dw:transform-message doc:name="prepare to update">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+%function getVerificationStatus(allergyStatus) {
+	(status: 'confirmed') when allergyStatus == 'true',
+	(status: 'refuted') when allergyStatus == 'false',
+	(status: 'unconfirmed') when allergyStatus == 'NA'
+} unless allergyStatus is :null otherwise status: null
+---
+{
+	resourceType: "AllergyIntolerance",
+	id : flowVars.allergyId,
+	patient: {
+	  reference: "Patient/" ++ flowVars.id
+	},
+	reporter: {
+		reference: "Patient/" ++ flowVars.id
+	},
+	substance: {
+	  coding: [
+	    {
+	      display: payload.name
+	    }
+	  ]
+	},
+	(recordedDate: payload.onsetDate) when payload.onsetDate != null,
+	status: getVerificationStatus(payload.status).status
+}]]></dw:set-payload>
+                    </dw:transform-message>
+                    <http:request config-ref="ehr-system-api" path="/AllergyIntolerance/{id}" method="PUT" doc:name="PUT /AllergyIntolerance/{id}">
+                        <http:request-builder>
+                            <http:uri-param paramName="id" value="#[dw('payload.id')]"/>
+                        </http:request-builder>
+                    </http:request>
+                </otherwise>
+            </choice>
+        </foreach>
+    </sub-flow>
+
+
+
+</mule>

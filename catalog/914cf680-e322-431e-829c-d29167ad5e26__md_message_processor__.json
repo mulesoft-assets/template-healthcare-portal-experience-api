@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "ehr-system-api",
+            "typeId": "GET:/Practitioner/{id}_response"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "practitionerPortal"
+        }
+    },
+    "id": "914cf680-e322-431e-829c-d29167ad5e26",
+    "version": "5.2.0.0"
+}

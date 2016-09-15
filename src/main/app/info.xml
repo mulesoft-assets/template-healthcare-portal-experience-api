@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+
+	<flow name="get:/patient/{id}/info:api-config">
+		<http:request config-ref="ehr-system-api" path="/Patient/{id}"
+			method="GET" doc:name="GET Patient">
+			<http:request-builder>
+                <http:uri-param paramName="id" value="#[message.inboundProperties.'http.uri.params'.id]"/>
+			</http:request-builder>
+            <http:success-status-code-validator values="200,404"/>
+		</http:request>
+		<dw:transform-message doc:name="Create JSON response for Portal">
+			<dw:input-payload doc:sample="sample_data\json_1.json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	name : 
+		{
+			family : payload.name[0].family[0],
+			given : payload.name[0].given[0],
+			prefix : payload.name[0].prefix[0],
+			suffix : payload.name[0].suffix[0]
+		},
+	phone : payload.telecom[0].value,
+	gender: payload.gender,
+	careProvider : (payload.careProvider[0].reference splitBy "/")[1] ,
+	address: 
+		{
+			line : payload.address[0].line[0],
+			city : payload.address[0].city,
+			state : payload.address[0].state,
+			postalCode : payload.address[0].postalCode,
+			country : payload.address[0].country
+		}
+} when inboundProperties.'http.status' < 400 otherwise payload]]></dw:set-payload>
+            <dw:set-property propertyName="http.status"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.status']]></dw:set-property>
+		</dw:transform-message>
+		<logger message="The GET process has finished." level="INFO"
+			doc:name="Log success" />
+	</flow>
+
+
+	<flow name="get:/practitioners/{id}:api-config">
+		<http:request config-ref="ehr-system-api" path="/Practitioner/{id}" method="GET" doc:name="Get Practitioner">
+			<http:request-builder>
+                <http:uri-param paramName="id" value="#[flowVars.id]"/>
+			</http:request-builder>
+            <http:success-status-code-validator values="200,404"/>
+		</http:request>
+		<dw:transform-message metadata:id="914cf680-e322-431e-829c-d29167ad5e26" doc:name="Create JSON response for Portal">
+			<dw:input-payload doc:sample="sample_data\json_3.json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	id : payload.id,
+	name : 
+		{
+			family : payload.name[0].family[0],
+			given : payload.name[0].given[0],
+			suffix : payload.name[0].suffix[0]
+		},
+	phone : (payload.telecom filter $.system == "phone").value,
+	email : (payload.telecom filter $.system == "email").value,
+	fax : (payload.telecom filter $.system == "fax").value,	
+	address : 
+		{
+			line : payload.address[0].line[0],
+			city : payload.address[0].city,
+			country : payload.address[0].country,
+			postalCode : payload.address[0].postalCode
+		},
+	gender : payload.gender,
+	birthDate : payload.birthDate
+} when inboundProperties.'http.status' < 400 otherwise payload]]></dw:set-payload>
+            <dw:set-property propertyName="http.status"><![CDATA[%dw 1.0
+%output application/java
+---
+inboundProperties.'http.status']]></dw:set-property>
+		</dw:transform-message>
+		<logger message="The GET process has finished." level="INFO" doc:name="Log success" />
+	</flow>
+
+
+	<flow name="put:/patient/{id}/info:application/json:api-config">
+		<dw:transform-message doc:name="Prepare data for update">
+			<dw:input-payload doc:sample="sample_data\json_2.json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+  "resourceType": "Patient",
+  "id": "Patient/" ++ flowVars.id,
+  "name": [
+  	{
+	    "use": "official",
+	    "family": [payload.name.family default ""],
+	    "given" : [payload.name.given default ""],
+	    "prefix": [payload.name.prefix default ""],
+	    "suffix": [payload.name.suffix default ""]
+  	}
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": payload.phone,
+      "use": "home"
+    }
+  ],
+  "gender": payload.gender default "male",
+  "birthDate": payload.birthDate default "1970-02-12",
+  "address": [
+    {
+      "line": [payload.address.line default ""],
+      "city": payload.address.city default "",
+      "district": payload.address.district default "",
+      "state": payload.address.state default "",
+      "postalCode": payload.address.postalCode default "",
+      "country": payload.address.country default ""
+    }
+  ],
+  "careProvider": [
+    {
+      "reference": "Practitioner/" ++ payload.careProvider
+    }
+  ]
+}]]></dw:set-payload>
+		</dw:transform-message>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+		<http:request config-ref="ehr-system-api" path="/Patient/{id}" method="PUT" doc:name="PUT Patient into EHR">
+			<http:request-builder>
+                <http:uri-param paramName="id" value="#[flowVars.id]"/>
+			</http:request-builder>
+            <http:success-status-code-validator values="200,404"/>
+		</http:request>
+		<logger	message="response: &quot;The PUT of patient information has finished.&quot;" level="INFO" doc:name="Log response" />
+	</flow>
+
+
+</mule>

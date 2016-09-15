@@ -1,0 +1,63 @@
+#%RAML 1.0
+title: External Identity Service API
+version: v1
+baseUri: http://localhost:8081/api
+mediaType: application/json
+
+/signin:
+  displayName: User Signin
+  post:
+    description: Signs in user
+    body: 
+      application/json:
+        example: !include signin-identity-service-request.json
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include signin-identity-service-response.json
+      401:
+        body:
+          application/json:
+            example: !include signin-identity-service-error-response.json
+/signout:
+  displayName: User Signout
+  post:
+    description: Signs out user
+    body: 
+      application/json:
+        example: !include signout-identity-service-request.json
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include signout-identity-service-response.json
+/signup:
+  displayName: User Signup
+  post:
+    description: Signs up user
+    body: 
+      application/json:
+        example: !include signup-identity-service-request.json
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include signup-identity-service-response.json
+      400:
+        body:
+          application/json:
+            example: !include signup-identity-service-error-response.json
+/checkLogin:
+  displayName: Test User login
+  post:
+    description: Tests User login
+    body: 
+      application/json:
+        example: !include checkLogin-identity-service-request.json
+    responses:
+      200:
+      400:
+        body:
+          application/json:
+            example: !include checkLogin-identity-service-error-response.json

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" 
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+
+
+
+	<flow name="get:/practitioners:api-config">
+		<http:request config-ref="ehr-system-api" path="/Practitioner"
+			method="GET" doc:name="Get Practitioners" />
+		<dw:transform-message doc:name="Create JSON response for Portal"
+			metadata:id="49803016-a4c2-482b-b3d9-af3ef220fc13">
+			<dw:input-payload doc:sample="sample_data\json_5.json"
+				mimeType="application/json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+payload.entry map 
+	using (practitioner = $.resource)
+{
+	id : practitioner.id,
+	name : 
+	{
+		family : practitioner.name[0].family[0],
+		given : practitioner.name[0].given[0],
+		suffix : practitioner.name[0].suffix[0]
+	},
+	phone : (practitioner.telecom filter $.system == "phone").value,
+	email : (practitioner.telecom filter $.system == "email").value,
+	fax   : (practitioner.telecom filter $.system == "fax").value,	
+	address : 
+	{
+		line : practitioner.address[0].line[0],
+		city : practitioner.address[0].city,
+		country : practitioner.address[0].country,
+		postalCode : practitioner.address[0].postalCode
+	},
+	gender : practitioner.gender,
+	birthDate : practitioner.birthDate
+} when payload.total > 0 otherwise []]]></dw:set-payload>
+		</dw:transform-message>
+		<logger message="The GET process has finished." level="INFO"
+			doc:name="Log success" />
+	</flow>
+
+	<flow name="post:/patient/{id}/appointments:application/json:api-config">
+		<dw:transform-message doc:name="save incoming json to var input">
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	patientId      : flowVars.id,
+	practitionerId : payload.practitionerID,
+	slotId         : payload.slotID
+}]]></dw:set-payload>
+		</dw:transform-message>
+		<http:request config-ref="appointments-process-api" path="/appointments"
+			method="POST" doc:name="POST /appointments" >
+            <http:success-status-code-validator values="200,201,422"/>
+        </http:request>
+        <choice doc:name="Successful?">
+            <when expression="#[message.inboundProperties.'http.status' == 201]">
+                <set-payload value="#[NullPayload.getInstance()]" doc:name="NullPayload"/>
+            </when>
+            <otherwise>
+                <set-property propertyName="http.status" value="422" doc:name="422"/>
+                <dw:transform-message doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	message: payload.message
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+	</flow>
+
+	<flow name="get:/patient/{id}/appointments/history:api-config">
+		<http:request config-ref="appointments-process-api" path="/appointments"
+			method="GET" doc:name="GET Appointments">
+			<http:request-builder>
+				<http:query-param paramName="patientId" value="#[flowVars.id]" />
+				<http:query-param paramName="startBefore"
+					value="#[dw(&quot;(now &gt;&gt; |+00:00|) as :string {format: \&quot;yyyy-MM-dd'T'HH:mm:ss'Z'\&quot;}&quot;)]" />
+			</http:request-builder>
+		</http:request>
+
+		<dw:transform-message doc:name="Prepare response">
+			<dw:input-payload doc:sample="sample_data\list_json_1.json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+((payload orderBy $.startDateTime)[-1..0] map 
+{
+	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+    actor    : $.practitioner.name,
+    status   : 'fulfilled' when $.status == 'booked' otherwise 'cancelled'
+	
+}) when not (payload is :empty) otherwise []]]></dw:set-payload>
+		</dw:transform-message>
+		<logger message="#[message.inboundProperties.'http.host' + message.inboundProperties.'http.request.uri'] has finished processing." level="INFO"
+			doc:name="Log success" />
+	</flow>
+
+
+	<flow name="get:/patient/{id}/appointments/upcomming:api-config">
+		<http:request config-ref="appointments-process-api" path="/appointments"
+			method="GET" doc:name="GET Appointments">
+			<http:request-builder>
+				<http:query-param paramName="patientId" value="#[flowVars.id]" />
+				<http:query-param paramName="startAfter"
+					value="#[dw(&quot;(now &gt;&gt; |+00:00|) as :string {format: \&quot;yyyy-MM-dd'T'HH:mm:ss'Z'\&quot;}&quot;)]" />
+
+
+			</http:request-builder>
+		</http:request>
+
+		<dw:transform-message doc:name="Prepare response">
+			<dw:input-payload doc:sample="sample_data\list_json.json" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+((payload orderBy $.startDateTime) map 
+{
+	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+    actor    : $.practitioner.name
+	
+}) when not (payload is :empty) otherwise []]]></dw:set-payload>
+		</dw:transform-message>
+		<logger message="#[message.inboundProperties.'http.host' + message.inboundProperties.'http.request.uri'] has finished processing." level="INFO"
+			doc:name="Log success" />
+	</flow>
+
+
+	<flow name="get:/practitioners/{id}/schedule:api-config">
+
+		<http:request config-ref="appointments-process-api" path="/slots" method="GET" doc:name="GET Practitioner's schedule">
+            <http:request-builder>
+                <http:query-param paramName="practitionerId" value="#[flowVars.id]"/>
+            </http:request-builder>
+		</http:request>
+
+		<dw:transform-message doc:name="Prepare response">
+			<dw:input-payload doc:sample="sample_data\list_json_2.json"/>
+			<dw:input-variable doc:sample="sample_data\flowVars-schedules.dwl" variableName="schedules" />
+			<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+  "practitionerId": flowVars.id,
+  "datesWithFreeSlots": 
+  	payload groupBy ($.startDateTime as :datetime as :string {format: "yyyy-MM-dd"}) 
+  	pluck 
+  	{
+		"date": '$$',
+		"slots" : $ map {
+			"scheduleID": $.scheduleId,
+          	"id": $.slotId,
+          	"start": (($.startDateTime as :datetime) >> |-07:00|) as :string {format: "HH:mm"},
+          	"end": (($.endDateTime as :datetime) >> |-07:00|) as :string {format: "HH:mm"}
+		}
+	}
+}]]></dw:set-payload>
+		</dw:transform-message>
+
+		<logger message="#[message.inboundProperties.'http.host' + message.inboundProperties.'http.request.uri'] has finished processing." level="INFO" doc:name="Log success" />
+	</flow>
+
+
+</mule>

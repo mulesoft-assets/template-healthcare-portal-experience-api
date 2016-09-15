@@ -1,0 +1,15 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "schedulesFhirResponse"
+        }
+    },
+    "outputMessageMetadata": {
+        "flowVariables": {
+            "schedules": {}
+        }
+    },
+    "id": "02ab754f-80ea-44e9-8826-6df43a6512d3",
+    "version": "5.2.0.0"
+}
