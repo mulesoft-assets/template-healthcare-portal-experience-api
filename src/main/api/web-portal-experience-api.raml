@@ -44,7 +44,7 @@ baseUri: http://localhost:8081/api/
         body:
           application/json:
             example: !include onboarding/signup-response.json
-      400:
+      409:
         body:
           application/json:
             example: !include onboarding/signup-error-response.json
@@ -52,7 +52,7 @@ baseUri: http://localhost:8081/api/
 /patient/{id}:
   uriParameters:
     id:
-      type: string
+      type: integer | string
       description: Patient ID
   /info:
     displayName: Patient info

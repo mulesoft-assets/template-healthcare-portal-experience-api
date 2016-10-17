@@ -1,0 +1,17 @@
+[
+  {
+    "login": "user1",
+    "password": "pass1",
+    "patientId": "123454"
+  },
+  {
+    "login": "user2",
+    "password": "pass2",
+    "patientId": "132455"
+  },
+  {
+    "login": "user3",
+    "password": "pass3",
+    "patientId": "123456"
+  }
+]
