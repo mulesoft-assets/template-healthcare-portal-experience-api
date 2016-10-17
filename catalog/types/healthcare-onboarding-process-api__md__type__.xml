@@ -3,8 +3,8 @@
   <types class="tree-map">
     <entry>
       <org.mule.common.metadata.DefaultMetaDataKey>
-        <id>POST:/user_request</id>
-        <displayName>POST:/user_request</displayName>
+        <id>POST:/users_request</id>
+        <displayName>POST:/users_request</displayName>
         <category>DEFAULT</category>
         <metaDataKeyPropertiesManager>
           <properties>
@@ -26,6 +26,7 @@
     &quot;prefix&quot;: &quot;&quot;,&#xd;
     &quot;suffix&quot;: &quot;&quot;&#xd;
   },&#xd;
+  &quot;gender&quot;: &quot;male&quot;,&#xd;
   &quot;phone&quot;: &quot;608-999-9654&quot;,&#xd;
   &quot;careProvider&quot;: &quot;10&quot;,&#xd;
   &quot;address&quot;:&#xd;
@@ -40,7 +41,16 @@
 }</exampleContent>
             </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
             <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
-              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey" reference="../../../../../org.mule.common.metadata.DefaultMetaDataKey"/>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                <id>POST:/users_request</id>
+                <displayName>POST:/users_request</displayName>
+                <category>DEFAULT</category>
+                <metaDataKeyPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                  </properties>
+                </metaDataKeyPropertiesManager>
+              </metaDataKey>
               <derivedStructure>false</derivedStructure>
               <generatedStructure>false</generatedStructure>
             </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
@@ -233,6 +243,34 @@
                 <org.mule.common.metadata.field.property.dsql.DsqlOrderMetaDataFieldProperty/>
                 <org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
                   <supportedOperators/>
+                </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>gender</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties/>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.field.property.dsql.DsqlSelectMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlWhereMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlOrderMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+                  <supportedOperators>
+                    <org.mule.common.query.expression.LessOperator/>
+                    <org.mule.common.query.expression.LessOrEqualsOperator/>
+                    <org.mule.common.query.expression.EqualsOperator/>
+                    <org.mule.common.query.expression.GreaterOperator/>
+                    <org.mule.common.query.expression.GreaterOrEqualsOperator/>
+                    <org.mule.common.query.expression.NotEqualsOperator/>
+                    <org.mule.common.query.expression.LikeOperator/>
+                  </supportedOperators>
                 </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
               </properties>
             </metaDataFieldPropertyManager>
@@ -488,8 +526,8 @@
     </entry>
     <entry>
       <org.mule.common.metadata.DefaultMetaDataKey>
-        <id>POST:/user_response</id>
-        <displayName>POST:/user_response</displayName>
+        <id>POST:/users_response</id>
+        <displayName>POST:/users_response</displayName>
         <category>DEFAULT</category>
         <metaDataKeyPropertiesManager>
           <properties>
@@ -503,17 +541,55 @@
           <properties>
             <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
               <exampleContent>{&#xd;
+  &quot;id&quot; : &quot;asdhak123123123&quot;,&#xd;
   &quot;message&quot;: &quot;Registration completed successfully. You can log in with your credentials.&quot;&#xd;
 }</exampleContent>
             </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
             <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
-              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey" reference="../../../../../org.mule.common.metadata.DefaultMetaDataKey"/>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                <id>POST:/users_response</id>
+                <displayName>POST:/users_response</displayName>
+                <category>DEFAULT</category>
+                <metaDataKeyPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                  </properties>
+                </metaDataKeyPropertiesManager>
+              </metaDataKey>
               <derivedStructure>false</derivedStructure>
               <generatedStructure>false</generatedStructure>
             </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
           </properties>
         </metaDataModelPropertiesManager>
         <fields>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>id</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties/>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.field.property.dsql.DsqlSelectMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlWhereMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlOrderMetaDataFieldProperty/>
+                <org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+                  <supportedOperators>
+                    <org.mule.common.query.expression.LessOperator/>
+                    <org.mule.common.query.expression.LessOrEqualsOperator/>
+                    <org.mule.common.query.expression.EqualsOperator/>
+                    <org.mule.common.query.expression.GreaterOperator/>
+                    <org.mule.common.query.expression.GreaterOrEqualsOperator/>
+                    <org.mule.common.query.expression.NotEqualsOperator/>
+                    <org.mule.common.query.expression.LikeOperator/>
+                  </supportedOperators>
+                </org.mule.common.metadata.field.property.dsql.DsqlQueryOperatorsMetaDataFieldProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
           <org.mule.common.metadata.DefaultMetaDataField>
             <name>message</name>
             <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">

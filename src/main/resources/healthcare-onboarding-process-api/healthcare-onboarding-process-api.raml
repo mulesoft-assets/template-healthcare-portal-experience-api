@@ -1,22 +1,45 @@
-#%RAML 1.0
+#%RAML 0.8
 title: Healthcare Onboarding Process API
 version: v1
-baseUri: http://localhost:8081/api/
 mediaType: application/json
 
-/user:
+/users:
   displayName: Onboarding process for user
   post:
     description: Register new user
     body: 
       application/json:
-        example: !include user-onboarding-request.json
+        example: !include post-user-onboarding-request.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include post-user-onboarding-response.json
+      409:
+        body:
+          application/json:
+            example: !include post-user-onboarding-error-response.json
+  patch:
+    description: Update the user specified by login
+    queryParameters:
+      login:
+        required: true
+        description: String representing the login of the user
+        type: string
+    body:
+      application/json:
+        example: !include patch-user-onboarding-request.json
     responses:
       200:
         body:
           application/json:
-            example: !include user-onboarding-response.json
-      400:
+            example: !include patch-user-onboarding-response.json
+      404:
         body:
           application/json:
-            example: !include user-onboarding-error-response.json
+            example: !include patch-user-onboarding-error-response1.json
+      422:
+        body:
+          application/json:
+            example: !include patch-user-onboarding-error-response2.json
+        

@@ -3,7 +3,7 @@
   <connectorName>healthcare-onboarding-process-api</connectorName>
   <metadataIo class="tree-map">
     <entry>
-      <string>POST:/user</string>
+      <string>POST:/users</string>
       <map>
         <entry>
           <string>__default__</string>
@@ -11,24 +11,12 @@
             <input class="org.mule.common.metadata.DefaultMetaData">
               <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
                 <connectorName>healthcare-onboarding-process-api</connectorName>
-                <typeId>POST:/user_request</typeId>
+                <typeId>POST:/users_request</typeId>
                 <category>DEFAULT</category>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -40,7 +28,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -50,24 +50,12 @@
             <output class="org.mule.common.metadata.DefaultMetaData">
               <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
                 <connectorName>healthcare-onboarding-process-api</connectorName>
-                <typeId>POST:/user_response</typeId>
+                <typeId>POST:/users_response</typeId>
                 <category>DEFAULT</category>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -79,7 +67,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>

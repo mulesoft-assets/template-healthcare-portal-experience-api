@@ -4,60 +4,82 @@ version: v1
 baseUri: http://localhost:8081/api
 mediaType: application/json
 
-/signin:
+/authorize:
   displayName: User Signin
   post:
     description: Signs in user
     body: 
       application/json:
-        example: !include signin-identity-service-request.json
+        example: !include authorize-identity-service-request.json
     responses:
       200:
         body:
           application/json:
-            example: !include signin-identity-service-response.json
+            example: !include authorize-identity-service-response.json
       401:
         body:
           application/json:
-            example: !include signin-identity-service-error-response.json
-/signout:
+            example: !include authorize-identity-service-error-response.json
+/unauthorize:
   displayName: User Signout
   post:
     description: Signs out user
     body: 
       application/json:
-        example: !include signout-identity-service-request.json
+        example: !include unauthorize-identity-service-request.json
     responses:
       200:
         body:
           application/json:
-            example: !include signout-identity-service-response.json
-/signup:
+            example: !include unauthorize-identity-service-response.json
+/users:
   displayName: User Signup
+  get:
+    description: Get all the users according to the filtering params
+    queryParameters:
+      login:
+        required: false
+        description: String representing the login of the user
+        type: string
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include get-users-identity-service-response.json
   post:
     description: Signs up user
     body: 
       application/json:
-        example: !include signup-identity-service-request.json
+        example: !include post-users-identity-service-request.json
     responses:
-      200:
+      201:
         body:
           application/json:
-            example: !include signup-identity-service-response.json
-      400:
+            example: !include post-users-identity-service-response.json
+      409:
         body:
           application/json:
-            example: !include signup-identity-service-error-response.json
-/checkLogin:
-  displayName: Test User login
-  post:
-    description: Tests User login
-    body: 
-      application/json:
-        example: !include checkLogin-identity-service-request.json
-    responses:
-      200:
-      400:
-        body:
-          application/json:
-            example: !include checkLogin-identity-service-error-response.json
+            example: !include post-users-identity-service-error-response.json
+  /{login}:
+    uriParameters:
+      login:
+        description: User's login
+        type: string
+    patch:
+      description: Partially update User
+      body:
+        application/json:
+          example: !include patch-users-identity-service-request.json
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include patch-users-identity-service-response.json
+        404:
+          body:
+            application/json:
+              example: !include patch-users-identity-service-error-response1.json
+        422:
+          body:
+            application/json:
+              example: !include patch-users-identity-service-error-response2.json

@@ -3,32 +3,61 @@
   <connectorName>healthcare-identity-service-api</connectorName>
   <metadataIo class="tree-map">
     <entry>
-      <string>POST:/signin</string>
+      <string>POST:/authorize</string>
       <map>
         <entry>
           <string>__default__</string>
           <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
             <input class="org.mule.common.metadata.DefaultMetaData">
-              <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
-                <connectorName>healthcare-identity-service-api</connectorName>
-                <typeId>POST:/signin_request</typeId>
-                <category>DEFAULT</category>
+              <payload class="org.mule.common.metadata.DefaultUnknownMetaDataModel">
+                <dataType>UNKNOWN</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                      <exampleContent>{&#xd;
+  &quot;login&quot;: &quot;login&quot;,&#xd;
+  &quot;password&quot;: &quot;password&quot;,&#xd;
+  &quot;name&quot;: {&#xd;
+    &quot;family&quot;: &quot;Radonctest&quot;,&#xd;
+    &quot;given&quot;: &quot;Veera&quot;,&#xd;
+    &quot;prefix&quot;: &quot;&quot;,&#xd;
+    &quot;suffix&quot;: &quot;&quot;&#xd;
+  },&#xd;
+  &quot;gender&quot;: &quot;male&quot;,&#xd;
+  &quot;phone&quot;: &quot;608-999-9654&quot;,&#xd;
+  &quot;careProvider&quot;: &quot;10&quot;,&#xd;
+  &quot;address&quot;:&#xd;
+    {&#xd;
+      &quot;line&quot;: &quot;1855 Folsom Street&quot;,&#xd;
+      &quot;city&quot;: &quot;San Francisco&quot;,&#xd;
+      &quot;district&quot;: &quot;DANE&quot;,&#xd;
+      &quot;state&quot;: &quot;Wisconsin&quot;,&#xd;
+      &quot;postalCode&quot;: &quot;53703&quot;,&#xd;
+      &quot;country&quot;: &quot;United States of America&quot;&#xd;
+    }&#xd;
+}&#xd;
+}</exampleContent>
+                    </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                    <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                      <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                        <id>POST:/authorize_request</id>
+                        <displayName>POST:/authorize_request</displayName>
+                        <category>DEFAULT</category>
+                        <metaDataKeyPropertiesManager>
+                          <properties>
+                            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                          </properties>
+                        </metaDataKeyPropertiesManager>
+                      </metaDataKey>
+                      <derivedStructure>false</derivedStructure>
+                      <generatedStructure>false</generatedStructure>
+                    </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                  </properties>
+                </metaDataModelPropertiesManager>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -40,7 +69,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -48,26 +89,35 @@
               </properties>
             </input>
             <output class="org.mule.common.metadata.DefaultMetaData">
-              <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
-                <connectorName>healthcare-identity-service-api</connectorName>
-                <typeId>POST:/signin_response</typeId>
-                <category>DEFAULT</category>
+              <payload class="org.mule.common.metadata.DefaultUnknownMetaDataModel">
+                <dataType>UNKNOWN</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                      <exampleContent>{&#xd;
+  &quot;patientId&quot;: &quot;12345&quot;&#xd;
+}</exampleContent>
+                    </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                    <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                      <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                        <id>POST:/authorize_response</id>
+                        <displayName>POST:/authorize_response</displayName>
+                        <category>DEFAULT</category>
+                        <metaDataKeyPropertiesManager>
+                          <properties>
+                            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                          </properties>
+                        </metaDataKeyPropertiesManager>
+                      </metaDataKey>
+                      <derivedStructure>false</derivedStructure>
+                      <generatedStructure>false</generatedStructure>
+                    </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                  </properties>
+                </metaDataModelPropertiesManager>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -79,7 +129,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -91,32 +153,41 @@
       </map>
     </entry>
     <entry>
-      <string>POST:/signout</string>
+      <string>POST:/unauthorize</string>
       <map>
         <entry>
           <string>__default__</string>
           <org.mule.tooling.metadata.cache.DefaultMetadataCacheEntry>
             <input class="org.mule.common.metadata.DefaultMetaData">
-              <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
-                <connectorName>healthcare-identity-service-api</connectorName>
-                <typeId>POST:/signout_request</typeId>
-                <category>DEFAULT</category>
+              <payload class="org.mule.common.metadata.DefaultUnknownMetaDataModel">
+                <dataType>UNKNOWN</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                      <exampleContent>{&#xd;
+  &quot;login&quot;: &quot;login&quot;&#xd;
+}</exampleContent>
+                    </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                    <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                      <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                        <id>POST:/unauthorize_request</id>
+                        <displayName>POST:/unauthorize_request</displayName>
+                        <category>DEFAULT</category>
+                        <metaDataKeyPropertiesManager>
+                          <properties>
+                            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                          </properties>
+                        </metaDataKeyPropertiesManager>
+                      </metaDataKey>
+                      <derivedStructure>false</derivedStructure>
+                      <generatedStructure>false</generatedStructure>
+                    </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                  </properties>
+                </metaDataModelPropertiesManager>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -128,7 +199,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -136,26 +219,35 @@
               </properties>
             </input>
             <output class="org.mule.common.metadata.DefaultMetaData">
-              <payload class="org.mule.tooling.metadata.api.TypeRefMetaDataModel">
-                <connectorName>healthcare-identity-service-api</connectorName>
-                <typeId>POST:/signout_response</typeId>
-                <category>DEFAULT</category>
+              <payload class="org.mule.common.metadata.DefaultUnknownMetaDataModel">
+                <dataType>UNKNOWN</dataType>
+                <metaDataModelPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                      <exampleContent>{&#xd;
+  &quot;message&quot;: &quot;User signed out&quot;&#xd;
+}</exampleContent>
+                    </org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty>
+                    <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                      <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                        <id>POST:/unauthorize_response</id>
+                        <displayName>POST:/unauthorize_response</displayName>
+                        <category>DEFAULT</category>
+                        <metaDataKeyPropertiesManager>
+                          <properties>
+                            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                          </properties>
+                        </metaDataKeyPropertiesManager>
+                      </metaDataKey>
+                      <derivedStructure>false</derivedStructure>
+                      <generatedStructure>false</generatedStructure>
+                    </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+                  </properties>
+                </metaDataModelPropertiesManager>
               </payload>
               <properties>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
-                  <org.mule.common.metadata.MetaDataProperties>
-                    <fields/>
-                  </org.mule.common.metadata.MetaDataProperties>
-                </entry>
-                <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
@@ -167,7 +259,19 @@
                   </org.mule.common.metadata.MetaDataProperties>
                 </entry>
                 <entry>
-                  <org.mule.common.metadata.MetaDataPropertyScope>FLOW</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataPropertyScope>SESSION</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>INBOUND</org.mule.common.metadata.MetaDataPropertyScope>
+                  <org.mule.common.metadata.MetaDataProperties>
+                    <fields/>
+                  </org.mule.common.metadata.MetaDataProperties>
+                </entry>
+                <entry>
+                  <org.mule.common.metadata.MetaDataPropertyScope>RECORD</org.mule.common.metadata.MetaDataPropertyScope>
                   <org.mule.common.metadata.MetaDataProperties>
                     <fields/>
                   </org.mule.common.metadata.MetaDataProperties>
