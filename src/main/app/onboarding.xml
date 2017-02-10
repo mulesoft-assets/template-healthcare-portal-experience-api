@@ -34,6 +34,9 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 	<flow name="post:/signup:api-config">
 
 		<http:request config-ref="healthcare-onboarding-process-api" path="/users" method="POST" doc:name="Call POST /users">
+            <http:request-builder>
+                <http:header headerName="Content-Type" value="application/json"/>
+            </http:request-builder>
             <http:success-status-code-validator values="201,409"/>
 		</http:request>
         <set-property propertyName="http.status" value="#[message.inboundProperties.'http.status']" doc:name="Set HTTP status"/>
