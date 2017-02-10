@@ -43,15 +43,17 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
         <http:raml-api-configuration location="ehr-system-api/healthcare-system-api.raml"/>
     </http:request-config>
 
-	<http:request-config name="healthcare-onboarding-process-api" protocol="HTTPS" host="${api.onboarding.host}" port="${api.onboarding.port}" basePath="${api.onboarding.basepath}" doc:name="HTTP Request Configuration">
+	<http:request-config name="healthcare-onboarding-process-api"  host="${api.onboarding.host}" port="${api.onboarding.port}" basePath="${api.onboarding.basepath}" doc:name="HTTP Request Configuration" protocol="HTTPS" responseTimeout="30000">
         <tls:context>
             <tls:trust-store path="${truststore.location}" password="${truststore.password}" type="jks" insecure="true"/>
         </tls:context>
         <http:raml-api-configuration location="healthcare-onboarding-process-api/healthcare-onboarding-process-api.raml"/>
 
+
     </http:request-config>
-    <http:request-config name="healthcare-identity-service-api"  host="${api.identity.service.host}" port="${api.identity.service.port}" basePath="${api.identity.service.basepath}" doc:name="HTTP Request Configuration">
+    <http:request-config name="healthcare-identity-service-api"  host="${api.identity.host}" port="${api.identity.port}" basePath="${api.identity.basepath}" doc:name="HTTP Request Configuration">
         <http:raml-api-configuration location="healthcare-identity-service-api/healthcare-identity-service-api.raml"/>
+
 
     </http:request-config>
 
