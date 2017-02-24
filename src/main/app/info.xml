@@ -37,6 +37,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 		},
 	phone : payload.telecom[0].value,
 	gender: payload.gender,
+	birthDate: payload.birthDate,
 	careProvider : (payload.careProvider[0].reference splitBy "/")[1] ,
 	address: 
 		{
