@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/sche
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd" >
 
 	
-	<api-platform-gw:api id="${api.id}" apiName="${api.name}" version="${api.version}" flowRef="experience-apiFlow" doc:name="API Autodiscovery" create="true"></api-platform-gw:api>
+<!-- 	<api-platform-gw:api id="${api.id}" apiName="${api.name}" version="${api.version}" flowRef="experience-apiFlow" doc:name="API Autodiscovery" create="true"></api-platform-gw:api> -->
     
     <context:property-placeholder location="common.properties, mule.${mule.env}.properties"/>
     
@@ -30,8 +30,6 @@ http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/
         </tls:context>
     </http:listener-config>
     
-<!--     <api-platform-gw:api id="${api.id}" apiName="${api.name}" version="${api.version}" flowRef="api-main" doc:name="API Autodiscovery"></api-platform-gw:api> -->
-
 
     <apikit:config name="api-config" raml="web-portal-experience-api.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
     

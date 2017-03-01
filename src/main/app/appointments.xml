@@ -21,7 +21,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 			method="GET" doc:name="Get Practitioners" />
 		<dw:transform-message doc:name="Create JSON response for Portal"
 			metadata:id="49803016-a4c2-482b-b3d9-af3ef220fc13">
-			<dw:input-payload doc:sample="sample_data\json_5.json"
+			<dw:input-payload 
 				mimeType="application/json" />
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -34,11 +34,12 @@ payload.entry map
 	{
 		family : practitioner.name[0].family[0],
 		given : practitioner.name[0].given[0],
+		prefix : practitioner.name[0].prefix[0],
 		suffix : practitioner.name[0].suffix[0]
 	},
-	phone : (practitioner.telecom filter $.system == "phone").value,
-	email : (practitioner.telecom filter $.system == "email").value,
-	fax   : (practitioner.telecom filter $.system == "fax").value,	
+	phone : (practitioner.telecom filter $.system == "phone")[0].value,
+	email : (practitioner.telecom filter $.system == "email")[0].value,
+	fax   : (practitioner.telecom filter $.system == "fax")[0].value,	
 	address : 
 	{
 		line : practitioner.address[0].line[0],
@@ -55,7 +56,7 @@ payload.entry map
 	</flow>
 
 	<flow name="post:/patient/{id}/appointments:application/json:api-config">
-		<dw:transform-message doc:name="save incoming json to var input">
+		<dw:transform-message doc:name="prepare request">
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
@@ -75,7 +76,7 @@ payload.entry map
             </when>
             <otherwise>
                 <set-property propertyName="http.status" value="422" doc:name="422"/>
-                <dw:transform-message doc:name="Transform Message">
+                <dw:transform-message doc:name="error">
                     <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
@@ -104,8 +105,8 @@ payload.entry map
 ---
 ((payload orderBy $.startDateTime)[-1..0] map 
 {
-	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' HH:mm a"},
-    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' hh:mm a"},
+    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' hh:mm a"},
     actor    : $.practitioner.name,
     status   : 'fulfilled' when $.status == 'booked' otherwise 'cancelled'
 	
@@ -135,8 +136,8 @@ payload.entry map
 ---
 ((payload orderBy $.startDateTime) map 
 {
-	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' HH:mm a"},
-    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' HH:mm a"},
+	start    : ($.startDateTime as :datetime >> |-07:00|) as :string {format: "E MM/dd/YY 'at' hh:mm a"},
+    end      : ($.endDateTime as :datetime >> |-07:00|)   as :string {format: "E MM/dd/YY 'at' hh:mm a"},
     actor    : $.practitioner.name
 	
 }) when not (payload is :empty) otherwise []]]></dw:set-payload>

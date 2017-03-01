@@ -1,0 +1,60 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:8081/api/Patient/13248425/AllergyIntolerance"
+    }
+  ],
+  "meta": {
+    "lastUpdated": "2017-02-28T03:15:55.272Z"
+  },
+  "total": 2,
+  "entry": [
+    {
+      "fullUrl": "http://localhost:8081/api/AllergyIntolerance/10",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "10",
+        "patient": {
+          "reference": "Patient/13248425"
+        },
+        "reporter": {
+          "reference": "Patient/13248425"
+        },
+        "substance": {
+          "coding": [
+            {
+              "display": "Aspirin"
+            }
+          ]
+        },
+        "recordedDate": "2017-02-06",
+        "status": "confirmed"
+      }
+    },
+    {
+      "fullUrl": "http://localhost:8081/api/AllergyIntolerance/11",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "11",
+        "patient": {
+          "reference": "Patient/13248425"
+        },
+        "reporter": {
+          "reference": "Patient/13248425"
+        },
+        "substance": {
+          "coding": [
+            {
+              "display": "Penicillin"
+            }
+          ]
+        },
+        "recordedDate": "2017-02-02",
+        "status": "confirmed"
+      }
+    }
+  ]
+}

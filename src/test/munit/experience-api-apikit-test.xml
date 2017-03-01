@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" 
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns="http://www.mulesoft.org/schema/mule/core" 
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" 
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+	xmlns:mock="http://www.mulesoft.org/schema/mule/mock" 
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" 
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+    <spring:beans>
+        <spring:import resource="classpath:experience-api.xml" />
+        <spring:import resource="classpath:info.xml" />
+        <spring:import resource="classpath:health.xml" />
+        <spring:import resource="classpath:appointments.xml" />
+        <spring:import resource="classpath:onboarding.xml" />
+    </spring:beans>
+    <munit:config mock-connectors="false" mock-inbounds="false" doc:name="MUnit configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="${https.port}" basePath="/api" doc:name="HTTP Request Configuration" protocol="HTTPS">
+        <tls:context>
+            <tls:trust-store path="${truststore.location}" password="${truststore.password}" type="jks" insecure="true"/>
+        </tls:context>
+    </http:request-config>
+    <context:property-placeholder location="mule.test.properties"/>
+   
+    <munit:test name="get:/practitioners/id/schedule:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/practitioners/id/schedule:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Practitioner's schedule">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['GET Practitioner\'s schedule']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_practitioners_schedule.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/practitioners/{id}/schedule" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="1"/>
+                <http:header headerName="Accept" value="application/json"/>
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="The response payload is not correct!" expectedValue="#[getResource('scaffolder/response/get_200_practitioners_{id}_schedule_application_json.json').asString()]" actualValue="#[payload]" doc:name="assert that - payload is as expected" />
+    </munit:test>
+    <munit:test name="get:/practitioners/id:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/practitioners/id:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Practitioner">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Get Practitioner']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_practitioner.json').asString()]" mimeType="application/json">
+                <mock:inbound-properties>
+                    <mock:inbound-property key="http.status" value="200"/>
+                </mock:inbound-properties>
+            </mock:then-return>
+        </mock:when>
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/practitioners/{id}" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="id" value="1"/>
+                <http:header headerName="Accept" value="application/json"/>
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="The response payload is not correct!" expectedValue="#[getResource('scaffolder/response/get_200_practitioners_{id}_application_json.json').asString()]" actualValue="#[payload]" doc:name="assert that - payload is as expected" />
+    </munit:test>
+    <munit:test name="get:/patient/id/appointments/history:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/patient/id/appointments/history:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Appointments">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['GET Appointments']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_appointments.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <set-variable variableName="id" value="13248425" doc:name="id" />
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/patient/#[flowVars['id']]/appointments/history" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="There should be 3 appointments" expectedValue="#[3]" actualValue="#[dw('sizeOf payload')]" doc:name="There should be 3 entries"/>
+    </munit:test>
+    <munit:test name="get:/patient/id/health:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/patient/id/health:web-portal-experience-api-config-200-application/json]">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Get Conditions from the EHR">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Get Conditions from the EHR']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_conditions.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Get Allergies from the EHR">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Get Allergies from the EHR']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_allergies.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <set-variable variableName="id" value="13248425" doc:name="id" />
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/patient/#[flowVars['id']]/health" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="The response payload is not correct!" expectedValue="#[getResource('scaffolder/response/get_200_patient_{id}_health_application_json.json').asString()]" actualValue="#[payload]" doc:name="assert that - payload is as expected" />
+    </munit:test>
+    <munit:test name="get:/patient/id/info:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/patient/id/info:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Patient">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['GET Patient']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_patient.json').asString()]" mimeType="application/json">
+                <mock:inbound-properties>
+                    <mock:inbound-property key="http.status" value="200"/>
+                </mock:inbound-properties>
+            </mock:then-return>
+        </mock:when>
+        <set-variable variableName="id" value="13248425" doc:name="id" />
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/patient/#[flowVars['id']]/info" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="The response payload is not correct!" expectedValue="#[getResource('scaffolder/response/get_200_patient_{id}_info_application_json.json').asString()]" actualValue="#[payload]" doc:name="assert that - payload is as expected" />
+    </munit:test>
+    <munit:test name="get:/practitioners:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/practitioners:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Practitioners">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['Get Practitioners']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_practitioners.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/practitioners" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="The response payload is not correct!" expectedValue="#[getResource('scaffolder/response/get_200_practitioners_application_json.json').asString()]" actualValue="#[payload]" doc:name="assert that - payload is as expected" />
+    </munit:test>
+    <munit:test name="get:/patient/id/appointments/upcomming:web-portal-experience-api-config-200-application/json-FlowTest" description="Verifying functionality of [get:/patient/id/appointments/upcomming:web-portal-experience-api-config-200-application/json]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock GET Appointments">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['GET Appointments']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('mocks/get_ehr_appointments.json').asString()]" mimeType="application/json"/>
+        </mock:when>
+        <set-variable variableName="id" value="13248425" doc:name="id" />
+        <http:request config-ref="HTTP_Request_Configuration" method="GET" path="/patient/#[flowVars['id']]/appointments/upcomming" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Accept" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="assert that - http.status eq 200" />
+        <munit:assert-on-equals message="There should be 3 appointments" expectedValue="#[3]" actualValue="#[dw('sizeOf payload')]" doc:name="There should be 3 entries"/>
+    </munit:test>
+    <munit:test name="post:/patient/id/appointments:application/json:web-portal-experience-api-config-201--FlowTest" description="Verifying functionality of [post:/patient/id/appointments:application/json:web-portal-experience-api-config-201-]" >
+        <mock:when messageProcessor=".*:.*" doc:name="Mock POST appointment">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['POST /appointments']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[NullPayload.getInstance()]">
+                <mock:inbound-properties>
+                    <mock:inbound-property key="http.status" value="201"/>
+                </mock:inbound-properties>
+            </mock:then-return>
+        </mock:when>
+        <set-payload value="#[getResource('scaffolder/request/post_patient_{id}_appointments_application_json.json').asString()]" doc:name="Set Payload"/>
+        <set-variable variableName="id" value="13248425" doc:name="id" />
+        <http:request config-ref="HTTP_Request_Configuration" method="POST" path="/patient/#[flowVars['id']]/appointments" doc:name="HTTP">
+            <http:request-builder>
+                <http:header headerName="Content-Type" value="application/json" />
+            </http:request-builder>
+        </http:request>
+        <object-to-string-transformer doc:name="http response to string" />
+        <munit:assert-true message="The HTTP Status code is not correct!" condition="#[messageInboundProperty('http.status').is(eq(201))]" doc:name="assert that - http.status eq 201" />
+    </munit:test>
+    
+</mule>

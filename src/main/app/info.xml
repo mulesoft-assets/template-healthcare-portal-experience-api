@@ -23,7 +23,6 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
             <http:success-status-code-validator values="200,404"/>
 		</http:request>
 		<dw:transform-message doc:name="Create JSON response for Portal">
-			<dw:input-payload doc:sample="sample_data\json_1.json" />
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
@@ -66,7 +65,6 @@ inboundProperties.'http.status']]></dw:set-property>
             <http:success-status-code-validator values="200,404"/>
 		</http:request>
 		<dw:transform-message metadata:id="914cf680-e322-431e-829c-d29167ad5e26" doc:name="Create JSON response for Portal">
-			<dw:input-payload doc:sample="sample_data\json_3.json" />
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
@@ -76,17 +74,19 @@ inboundProperties.'http.status']]></dw:set-property>
 		{
 			family : payload.name[0].family[0],
 			given : payload.name[0].given[0],
+			prefix : payload.name[0].prefix[0],
 			suffix : payload.name[0].suffix[0]
 		},
-	phone : (payload.telecom filter $.system == "phone").value,
-	email : (payload.telecom filter $.system == "email").value,
-	fax : (payload.telecom filter $.system == "fax").value,	
+	phone : (payload.telecom filter $.system == "phone")[0].value,
+	fax : (payload.telecom filter $.system == "fax")[0].value,	
+	email : (payload.telecom filter $.system == "email")[0].value,
 	address : 
 		{
 			line : payload.address[0].line[0],
 			city : payload.address[0].city,
-			country : payload.address[0].country,
-			postalCode : payload.address[0].postalCode
+			postalCode : payload.address[0].postalCode,
+			state : payload.address[0].state,
+			country : payload.address[0].country
 		},
 	gender : payload.gender,
 	birthDate : payload.birthDate
@@ -102,7 +102,6 @@ inboundProperties.'http.status']]></dw:set-property>
 
 	<flow name="put:/patient/{id}/info:application/json:api-config">
 		<dw:transform-message doc:name="Prepare data for update">
-			<dw:input-payload doc:sample="sample_data\json_2.json" />
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---

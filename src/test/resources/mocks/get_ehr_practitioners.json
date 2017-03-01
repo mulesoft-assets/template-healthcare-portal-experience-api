@@ -1,0 +1,118 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 2,
+  "meta": {
+    "lastUpdated": "2017-02-28T13:30:50.168Z"
+  },
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:8081/api/Practitioner"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "http://localhost:8081/api/Practitioner/1",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "1",
+        "address": [
+          {
+            "line": [
+              "1855 Folsom Street"
+            ],
+            "city": "San Francisco",
+            "postalCode": "09554",
+            "state": "California",
+            "country": "United States of America"
+          }
+        ],
+        "birthDate": "1975-12-07",
+        "gender": "male",
+        "name": [
+          {
+            "use": "official",
+            "family": [
+              "Briet"
+            ],
+            "given": [
+              "Ronald"
+            ],
+            "suffix": [
+              "MD"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "work",
+            "value": "608-999-9654"
+          },
+          {
+            "system": "fax",
+            "use": "work",
+            "value": "0205664440"
+          },
+          {
+            "system": "email",
+            "use": "work",
+            "value": "r.briet@bmc.nl"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://localhost:8081/api/Practitioner/2",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "2",
+        "address": [
+          {
+            "line": [
+              "1 California Street"
+            ],
+            "postalCode": "94111",
+            "city": "San Francisco",
+            "state": "California",
+            "country": "United States of America"
+          }
+        ],
+        "birthDate": "1985-01-01",
+        "gender": "male",
+        "name": [
+          {
+            "use": "official",
+            "family": [
+              "Jackson"
+            ],
+            "given": [
+              "Donald"
+            ],
+            "suffix": [
+              "MD"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "work",
+            "value": "608-999-9655"
+          },
+          {
+            "system": "fax",
+            "use": "work",
+            "value": "0205664441"
+          },
+          {
+            "system": "email",
+            "use": "work",
+            "value": "d.jackson@bmc.nl"
+          }
+        ]
+      }
+    }
+  ]
+}
