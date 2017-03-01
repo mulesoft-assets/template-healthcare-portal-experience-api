@@ -20,11 +20,6 @@
 		<url>https://github.com/mulesoft/template-healthcare-portal-experience-api</url>
 		<tag>HEAD</tag>
 	</scm>
-	
-	<properties>
-		<munit.version>1.3.1</munit.version>
-		<mule.munit.support.version>3.8.2</mule.munit.support.version>
-	</properties>
 
 	<build>
 		<plugins>
