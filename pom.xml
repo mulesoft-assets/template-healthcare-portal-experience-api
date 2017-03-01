@@ -52,6 +52,9 @@
 					</execution>
 				</executions>
 				<configuration>
+					<dynamicPorts>
+						<dynamicPort>https.port</dynamicPort>
+					</dynamicPorts>
 					<coverage>
 						<runCoverage>true</runCoverage>
 						<formats>
