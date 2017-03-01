@@ -1,0 +1,48 @@
+{
+    "resourceType": "Practitioner",
+    "id": "1",
+    "address": [
+      {
+        "line": [
+          "1855 Folsom Street"
+        ],
+        "city": "San Francisco",
+        "postalCode": "09554",
+        "state": "California",
+        "country": "United States of America"
+      }
+    ],
+    "birthDate": "1975-12-07",
+    "gender": "male",
+    "name": [
+      {
+        "use": "official",
+        "family": [
+          "Briet"
+        ],
+        "given": [
+          "Ronald"
+        ],
+        "suffix": [
+          "MD"
+        ]
+      }
+    ],
+    "telecom": [
+      {
+        "system": "phone",
+        "use": "work",
+        "value": "608-999-9654"
+      },
+      {
+        "system": "fax",
+        "use": "work",
+        "value": "0205664440"
+      },
+      {
+        "system": "email",
+        "use": "work",
+        "value": "r.briet@bmc.nl"
+      }
+    ]
+  }

@@ -1,0 +1,22 @@
+{
+  "practitionerId": "1",
+  "datesWithFreeSlots": [
+    {
+      "date": "2017-03-01",
+      "slots": [
+        {
+          "scheduleID": 1,
+          "id": 42,
+          "start": "14:30",
+          "end": "15:00"
+        },
+        {
+          "scheduleID": 1,
+          "id": 44,
+          "start": "15:30",
+          "end": "16:00"
+        }
+      ]
+    }
+  ]
+}

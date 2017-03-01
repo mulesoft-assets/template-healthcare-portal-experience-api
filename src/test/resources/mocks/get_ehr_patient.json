@@ -1,0 +1,40 @@
+{
+  "resourceType": "Patient",
+  "id": "13248425",
+  "address": [
+    {
+      "city": "viktorovo9",
+      "country": "United States of America",
+      "line": [
+        "1855 Folsom Street"
+      ],
+      "postalCode": "53703",
+      "state": "Wisconsin"
+    }
+  ],
+  "birthDate": "1980-01-24",
+  "careProvider": [
+    {
+      "reference": "Practitioner/10"
+    }
+  ],
+  "gender": "male",
+  "name": [
+    {
+      "use": "official",
+      "family": [
+        "Radonctest"
+      ],
+      "given": [
+        "Veera"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "use": "home",
+      "value": "608-999-9654"
+    }
+  ]
+}

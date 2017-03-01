@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1",
+    "name": {
+      "family": "Briet",
+      "given": "Ronald",
+      "prefix": null,
+      "suffix": "MD"
+    },
+    "phone": "608-999-9654",
+    "email": "r.briet@bmc.nl",
+    "fax": "0205664440",
+    "address": {
+      "line": "1855 Folsom Street",
+      "city": "San Francisco",
+      "country": "United States of America",
+      "postalCode": "09554"
+    },
+    "gender": "male",
+    "birthDate": "1975-12-07"
+  },
+  {
+    "id": "2",
+    "name": {
+      "family": "Jackson",
+      "given": "Donald",
+      "prefix": null,
+      "suffix": "MD"
+    },
+    "phone": "608-999-9655",
+    "email": "d.jackson@bmc.nl",
+    "fax": "0205664441",
+    "address": {
+      "line": "1 California Street",
+      "city": "San Francisco",
+      "country": "United States of America",
+      "postalCode": "94111"
+    },
+    "gender": "male",
+    "birthDate": "1985-01-01"
+  }
+]

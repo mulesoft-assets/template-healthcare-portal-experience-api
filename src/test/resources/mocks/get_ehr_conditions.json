@@ -1,0 +1,41 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://localhost:8081/api/Patient/13248425/Condition"
+    }
+  ],
+  "meta": {
+    "lastUpdated": "2017-02-28T03:06:58.45Z"
+  },
+  "total": 1,
+  "entry": [
+    {
+      "fullUrl": "http://localhost:8081/api/Condition/22",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "22",
+        "patient": {
+          "reference": "Patient/13248425"
+        },
+        "asserter": {
+          "reference": "Patient/13248425",
+          "display": ""
+        },
+        "code": {
+          "coding": [
+            {
+              "code": "73211009",
+              "display": "Diabetes mellitus",
+              "system": "http://snomed.info/sct"
+            }
+          ]
+        },
+        "verificationStatus": "confirmed",
+        "onsetDateTime": "2016-02-23"
+      }
+    }
+  ]
+}

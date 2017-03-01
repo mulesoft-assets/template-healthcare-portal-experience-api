@@ -1,0 +1,47 @@
+[
+  {
+    "id": 16,
+    "startDateTime": "2016-07-29T22:00:00+00:00",
+    "endDateTime": "2016-07-29T22:30:00+00:00",
+    "status": "booked",
+    "practitioner": {
+      "id": 2,
+      "name": "Mark Kingston, MD"
+    },
+    "patient": {
+      "id": 13248425,
+      "name": "Veera Radonctest"
+    },
+    "description": "Appointment with Mark Kingston, MD"
+  },
+  {
+    "id": 16,
+    "startDateTime": "2016-08-01T22:00:00+00:00",
+    "endDateTime": "2016-08-01T22:30:00+00:00",
+    "status": "booked",
+    "practitioner": {
+      "id": 1,
+      "name": "Jamie Fletcher, MD"
+    },
+    "patient": {
+      "id": 13248425,
+      "name": "Veera Radonctest"
+    },
+    "description": "Appointment with Jamie Fletcher, MD"
+  },
+  {
+    "id": 16,
+    "startDateTime": "2017-03-01T22:00:00+00:00",
+    "endDateTime": "2017-03-01T22:30:00+00:00",
+    "status": "booked",
+    "practitioner": {
+      "id": 3,
+      "name": "John Smith, MD"
+    },
+    "patient": {
+      "id": 13248425,
+      "name": "Veera Radonctest"
+    },
+    "description": "Appointment with John Smith, MD"
+  }
+]
