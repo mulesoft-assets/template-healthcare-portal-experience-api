@@ -17,9 +17,12 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 
 	<flow name="post:/signin:api-config">
         <http:request config-ref="healthcare-identity-service-api" path="/authorize" method="POST" doc:name="Call POST /authorize">
+            <http:request-builder>
+                <http:header headerName="Content-Type" value="application/json"/>
+            </http:request-builder>        
             <http:success-status-code-validator values="200,401"/>
         </http:request>
-        <set-property propertyName="http.status" value="#[message.inboundProperties.'http.status']" doc:name="Set HTTP status" mimeType="application/json"/>
+        <set-property propertyName="http.status" value="#[message.inboundProperties.'http.status']" doc:name="Set HTTP status"/>
 
 	</flow>
 
