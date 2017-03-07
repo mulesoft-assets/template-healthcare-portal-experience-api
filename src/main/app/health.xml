@@ -91,6 +91,7 @@ payload]]></dw:set-variable>
 
 	<flow name="put:/patient/{id}/health:application/json:api-config">
         <dw:transform-message doc:name="save to var input">
+        	<dw:input-payload mimeType="application/json"/>
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---

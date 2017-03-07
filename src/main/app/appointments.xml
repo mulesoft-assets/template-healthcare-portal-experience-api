@@ -57,6 +57,7 @@ payload.entry map
 
 	<flow name="post:/patient/{id}/appointments:application/json:api-config">
 		<dw:transform-message doc:name="prepare request">
+			<dw:input-payload mimeType="application/json"/>
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---

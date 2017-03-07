@@ -102,6 +102,7 @@ inboundProperties.'http.status']]></dw:set-property>
 
 	<flow name="put:/patient/{id}/info:application/json:api-config">
 		<dw:transform-message doc:name="Prepare data for update">
+			<dw:input-payload mimeType="application/json"/>
 			<dw:set-payload><![CDATA[%dw 1.0
 %output application/json
 ---
