@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+    xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+    <configuration-properties doc:name="Configuration properties" doc:id="4bd80986-1bbd-4f3c-a8a0-22fdf76da240"
+        file="common.properties" />
+    <configuration-properties doc:name="Configuration properties" doc:id="66ef2b0b-dd66-4582-aac4-871cbaf66a5e"
+        file="mule.${mule.env}.properties" />
+    <global-property doc:name="Global Property" doc:id="9f2622ca-328e-49a6-8f05-c888498efec9" name="mule.env"
+        value="dev" />
+
+    <http:listener-config name="healthcare_portal_experience_api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${https.port}" tlsContext="TLS_Context"
+            protocol="HTTPS" />
+    </http:listener-config>
+
+    <tls:context name="TLS_Context" doc:name="TLS Context" doc:id="bcaa6b15-1ae5-4351-b332-54b29e8f84a0">
+        <tls:key-store type="jks" path="${keystore.location}" alias="${key.alias}" keyPassword="${key.password}"
+            password="${keystore.password}" />
+    </tls:context>
+
+    <apikit:config name="healthcare_portal_experience_api-config" raml="healthcare_portal_experience_api.raml"
+        outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+        
+    <http:request-config name="healthcare-identity-service-api" doc:name="HTTP Request configuration"
+        doc:id="58ae5a98-137e-4fb9-99d2-14f995844014" basePath="${api.identity.basepath}">
+        <http:request-connection host="${api.identity.host}" port="${api.identity.port}" />
+    </http:request-config>
+
+    <http:request-config name="onboarding-process-api" doc:name="HTTP Request configuration"
+        doc:id="3c60fab3-8332-463f-b8aa-156a12111b0f" basePath="${api.onboarding.basepath}">
+        <http:request-connection host="${api.onboarding.host}" port="${api.onboarding.port}"
+            protocol="HTTPS" />
+    </http:request-config>
+
+    <http:request-config name="ehr-system-api" doc:name="HTTP Request configuration" doc:id="deebe1bc-78c8-4069-bfda-2178b351f3d3"
+        basePath="${api.ehr.basepath}">
+        <http:request-connection host="${api.ehr.host}" port="${api.ehr.port}" />
+    </http:request-config>
+
+    <http:request-config name="appointments-process-api" doc:name="HTTP Request configuration"
+        doc:id="f000afb7-2d62-4905-90ab-64496498a04b" basePath="${api.appointment.basepath}">
+        <http:request-connection host="${api.appointment.host}" port="${api.appointment.port}" />
+    </http:request-config>
+
+</mule>
