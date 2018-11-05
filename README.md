@@ -68,14 +68,14 @@ You can find a detailed description on how to do so in this [Documentation Page]
 Once you have imported you Anypoint Template into Anypoint Studio you need to follow these steps to run it:
 
 + Generate keystore (You can find a detailed description on how to do so in this [Documentation Page](https://docs.mulesoft.com/mule-runtime/4.1/tls-configuration))
-+ Locate the properties file `mule-<env>.properties`, in src/main/app/resources
++ Locate the properties file `mule-<env>.properties`, in src/main/resources
 + Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
 + Once that is done, right click on you Anypoint Template project folder
 + Hover you mouse over `"Run as"`
 + Click on  `"Mule Application"`
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties](../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
+Complete all properties in one of the property files, for example in `mule.prod.properties` and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
 
 ## Running on CloudHub <a name="runoncloudhub"/>
 While creating your application on CloudHub (or you can do it later as a next step), you need to go to `"Manage Application"` > `"Properties"` to set all environment variables detailed in **Properties to be configured**.

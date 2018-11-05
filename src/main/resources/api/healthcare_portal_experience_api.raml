@@ -7,8 +7,8 @@ uses:
   DataTypes: ./dataTypes.raml
 
 /signin:
-  displayName: User Signin
   post:
+    displayName: User Signin
     description: Signs in user
     body: 
       application/json:
@@ -26,8 +26,8 @@ uses:
             type: DataTypes.MessageResponse
             example: !include ./examples/signin-error-response.json
 /signout:
-  displayName: User Signout
   post:
+    displayName: User Signout
     description: Signs out user
     body: 
       application/json:
@@ -40,8 +40,8 @@ uses:
             type: DataTypes.MessageResponse
             example: !include ./examples/signout-response.json
 /signup:
-  displayName: User Signup
   post:
+    displayName: User Signup
     description: Signs up user
     body: 
       application/json:
@@ -65,8 +65,8 @@ uses:
       type: integer | string
       description: Patient ID
   /info:
-    displayName: Patient info
     get:
+      displayName: Get patient info
       description: GET patient info from EHR system
       responses:
         200:
@@ -75,6 +75,7 @@ uses:
               type: DataTypes.Patient
               example: !include ./examples/patient-portal-response.json
     put:
+      displayName: Update patient info
       description: PUT patient info from Portal to SFDC Health Cloud
       body:
         application/json:
@@ -85,8 +86,8 @@ uses:
           body:
             application/json:  
   /health:
-    displayName: Patient health info
     get:
+      displayName: Get patient health info
       description: GET patient health info from EHR
       responses:
         200:
@@ -95,6 +96,7 @@ uses:
               type: DataTypes.Health
               example: !include ./examples/health-portal-response.json
     put:
+      displayName: Update patient health info
       description: PUT patient health info from Portal to SFDC Health Cloud and EHR
       body:
         application/json:
@@ -106,6 +108,7 @@ uses:
             application/json:
   /appointments:
     post:
+      displayName: Create appointment
       description: POST new appointment for patient
       body:
         application/json:
@@ -114,8 +117,8 @@ uses:
       responses:
         201: 
     /upcomming:
-      displayName: Upcoming Appointments for Patient
       get:
+        displayName: Upcoming Appointments for Patient
         description: GET upcoming appointments for specific patient
         responses:
           200:
@@ -124,8 +127,8 @@ uses:
                 type: DataTypes.Appointment[]
                 example: !include ./examples/upcomming-appointments-response.json
     /history:
-      displayName: Past Appointments for Patient
       get:
+        displayName: Past Appointments for Patient
         description: GET past appointments for specific patient
         responses:
           200:
@@ -135,9 +138,9 @@ uses:
                 example: !include ./examples/appointments-history-response.json
             
 /practitioners:
-  displayName: Practitioners
   get:
-    description: Get all information about practitioners in the FHIR format
+    displayName: Get practitioners
+    description: Get all information about practitioners
     responses:
       200:
         body:
@@ -146,7 +149,8 @@ uses:
             example: !include ./examples/practitioners-portal-response.json
   /{id}:
     get:
-      description: Get all information about practitioners with specificID in the FHIR format
+      displayName: Get practitioner by id
+      description: Get all information about practitioner with specific ID
       responses:
         200:
           body:
@@ -155,7 +159,8 @@ uses:
               example: !include ./examples/practitioner-portal-response.json
     /schedule:
       get:
-        description: Get all information about practitioners with specificID in the FHIR format        
+        displayName: Get available slots
+        description: Get practitioner's available slots for scheduling        
         responses:
           200:
             body:
