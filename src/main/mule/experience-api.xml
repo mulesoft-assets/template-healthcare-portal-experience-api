@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <flow name="healthcare_portal_experience_api-main">
+        <http:listener config-ref="healthcare_portal_experience_api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="healthcare_portal_experience_api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="healthcare_portal_experience_api-console">
+        <http:listener config-ref="healthcare_portal_experience_api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="healthcare_portal_experience_api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+                    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+
+    <flow name="put:\patient\(id)\health:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call putPatientHealthSubFlow" doc:id="688e6439-badb-464c-8418-9a558e48cb84" name="putPatientHealthSubFlow" />
+    </flow>
+
+    <flow name="put:\patient\(id)\info:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call putPatientInfoSubFlow" doc:id="b55d5a80-80e4-46c1-9b66-620b7f1e2e92" name="putPatientInfoSubFlow" />
+    </flow>
+
+    <flow name="get:\practitioners\(id)\schedule:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPractitionerScheduleSubFlow" doc:id="9ac904e0-c6d9-49a2-9cca-d90f38e1f8a4"
+            name="getPractitionerScheduleSubFlow" />
+    </flow>
+
+    <flow name="get:\practitioners\(id):healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPractitionerSubFlow" doc:id="0acb472b-9f66-497a-84ac-8c1d475b55fd" name="getPractitionerSubFlow" />
+    </flow>
+
+    <flow name="get:\patient\(id)\appointments\history:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPatientAppointmentsHistorySubFlow" doc:id="234e60e6-d453-4a7b-aca7-4c4ef2053eb0"
+            name="getPatientAppointmentsHistorySubFlow" />
+    </flow>
+
+    <flow name="get:\patient\(id)\health:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPatientHealthSubFlow" doc:id="a6d6f606-dc4c-4794-b37c-b8e230ba0843" name="getPatientHealthSubFlow" />
+    </flow>
+
+    <flow name="get:\patient\(id)\info:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPatientInfoSubFlow" doc:id="9fe369e5-8153-48d3-81df-b697999178fe" name="getPatientInfoSubFlow" />
+    </flow>
+
+    <flow name="get:\practitioners:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPractitionersSubFlow" doc:id="ab18f980-8ae6-4314-9710-24791204033f" name="getPractitionersSubFlow" />
+    </flow>
+
+    <flow name="get:\patient\(id)\appointments\upcomming:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPatientAppointmentsUpcommingSubFlow" doc:id="9624e001-e246-40d8-b7ab-f3f6f1ff1651"
+            name="getPatientAppointmentsUpcommingSubFlow" />
+    </flow>
+
+    <flow name="post:\patient\(id)\appointments:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call postPatientAppointmentsSubFlow" doc:id="093c665b-a5e7-4f03-8d21-09ba43a23136"
+            name="postPatientAppointmentsSubFlow" />
+    </flow>
+
+    <flow name="post:\signin:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call postSignInSubFlow" doc:id="fa94d878-1108-431a-b941-bf5e285159f0" name="postSignInSubFlow" />
+    </flow>
+
+    <flow name="post:\signout:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call postSignOutSubFlow" doc:id="abcd2d89-6b35-410f-b690-7067063b8bd9" name="postSignOutSubFlow" />
+    </flow>
+
+    <flow name="post:\signup:application\json:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call postSignUpSubFlow" doc:id="f1ce41bd-1115-47ae-a158-48705e498a7f" name="postSignUpSubFlow" />
+    </flow>
+</mule>

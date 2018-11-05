@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <sub-flow name="postSignInSubFlow" doc:id="2af46482-ebfd-407b-abc1-ed0bd5fa7995">
+        <http:request method="POST" doc:name="Call POST /authorize" doc:id="bd7e2d54-f69b-4485-b015-ea17beafbcb2"
+            config-ref="healthcare-identity-service-api" path="/authorize">
+            <http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+            <http:response-validator>
+                <http:success-status-code-validator values="200,401" />
+            </http:response-validator>
+        </http:request>
+        <set-variable value="#[attributes.statusCode]" doc:name="Set HTTP status" doc:id="524d710d-2363-4bbf-ae88-36cf720ce363"
+            variableName="httpStatus" />
+    </sub-flow>
+
+    <sub-flow name="postSignOutSubFlow" doc:id="1e41a40f-b130-4942-9705-2ff52cf3760d">
+        <http:request method="POST" doc:name="Call POST /unauthorize" doc:id="b6c199de-ab06-4af2-bbff-98505784df28"
+            config-ref="healthcare-identity-service-api" path="/unauthorize">
+            <http:headers><![CDATA[#[output application/java
+---
+{
+    "Content-Type" : "application/json"
+}]]]></http:headers>
+        </http:request>
+    </sub-flow>
+
+    <sub-flow name="postSignUpSubFlow" doc:id="b2062f74-5f10-485f-bb6b-e27804b028af">
+        <ee:transform doc:name="Prepare data" doc:id="64af3e15-0640-49ae-9240-e4cb323398f5">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  login: payload.login,
+  password: payload.password,
+  name: [{
+    family: [payload.name.family default ""],
+    given: [payload.name.given default ""],
+    prefix: [payload.name.prefix default ""],
+    suffix: [payload.name.suffix default ""]
+  }],
+  gender: payload.gender default "male",
+  birthDate: payload.birthDate default "1970-02-12",
+  phone: payload.phone,
+  (generalPractitioner: [
+  	{
+  		reference: "Practitioner/" ++ payload.careProvider
+  	}]
+  ) if (payload.careProvider != null),
+  address: [
+    {
+      line: [payload.address.line default ""],
+      city: payload.address.city default "",
+      district: payload.address.district default "",
+      state: payload.address.state default "",
+      postalCode: payload.address.postalCode default "",
+      country: payload.address.country default ""
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <http:request method="POST" doc:name="Call POST /users" doc:id="96e1ae67-47ae-462d-ae72-f78011e377b9"
+            config-ref="onboarding-process-api" path="/users">
+            <http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+            <http:response-validator>
+                <http:success-status-code-validator values="201,409" />
+            </http:response-validator>
+        </http:request>
+        <set-variable value="#[attributes.statusCode]" doc:name="Set HTTP status" doc:id="f1685af7-179c-42d9-9e58-9d8115576926"
+            variableName="httpStatus" />
+
+    </sub-flow>
+
+    <sub-flow name="getPractitionersSubFlow" doc:id="2a9cf40f-6129-4ef2-9d6b-75b648bbb665">
+        <http:request method="GET" doc:name="Get Practitioners" doc:id="781641b9-c260-4840-b624-463db408fa3c"
+            config-ref="ehr-system-api" path="/Practitioner" />
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+            xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+            doc:id="ff64d265-6fe0-42ac-bc3e-51006af92bd5" doc:name="Create JSON response for Portal">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if (payload.total > 0) payload.entry map using (practitioner = $.resource)
+{
+	id : practitioner.id,
+	name : {
+		family : practitioner.name[0].family[0],
+		given : practitioner.name[0].given[0],
+		prefix : practitioner.name[0].prefix[0],
+		suffix : practitioner.name[0].suffix[0]
+	},
+	phone : (practitioner.telecom filter $.system == "phone")[0].value,
+	email : (practitioner.telecom filter $.system == "email")[0].value,
+	fax   : (practitioner.telecom filter $.system == "fax")[0].value,
+	address : {
+		line : practitioner.address[0].line[0],
+		city : practitioner.address[0].city,
+		country : practitioner.address[0].country,
+		postalCode : practitioner.address[0].postalCode
+	},
+	gender : practitioner.gender,
+	birthDate : practitioner.birthDate
+} else []]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="getPractitionerSubFlow" doc:id="09777c48-c9d3-44be-940f-1477ac0558ac">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="14485197-807f-4834-8c8e-6765c07881c3"
+            doc:name="Set id">
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="Get Practitioner" doc:id="a2281a0e-57ad-4e5f-95a1-eb23386b9f11"
+            config-ref="ehr-system-api" path="/Practitioner/{id}">
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : vars.id
+}]]]></http:uri-params>
+            <http:response-validator>
+                <http:success-status-code-validator values="200,404" />
+            </http:response-validator>
+        </http:request>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+            xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+            doc:id="27478bf6-0fd1-464b-a15f-a91cf14a2131" doc:name="Create JSON response for Portal">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if (attributes.statusCode == 200) {
+	id : payload.id,
+	name : 
+		{
+			family : payload.name[0].family[0],
+			given : payload.name[0].given[0],
+			prefix : payload.name[0].prefix[0],
+			suffix : payload.name[0].suffix[0]
+		},
+	phone : (payload.telecom filter $.system == "phone")[0].value,
+	fax : (payload.telecom filter $.system == "fax")[0].value,	
+	email : (payload.telecom filter $.system == "email")[0].value,
+	address : 
+		{
+			line : payload.address[0].line[0],
+			city : payload.address[0].city,
+			postalCode : payload.address[0].postalCode,
+			state : payload.address[0].state,
+			country : payload.address[0].country
+		},
+	gender : payload.gender,
+	birthDate : payload.birthDate
+} else payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="getPractitionerScheduleSubFlow" doc:id="e84491da-135e-492f-8bba-8c2a79344bd5">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="bda12309-178b-4fd1-84b1-2870327216bd"
+            doc:name="Set id">
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="GET Practitioner's schedule" doc:id="3dbea5d0-c99a-4a84-aa73-b022433fa735"
+            config-ref="appointments-process-api" path="/slots">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	"practitionerId" : vars.id
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+            xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+            doc:id="4f4568c4-7271-44d0-a588-bfa2034cc3db" doc:name="Prepare response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"practitionerId": vars.id,
+	"datesWithFreeSlots": payload groupBy ($.start as DateTime as String {format: "yyyy-MM-dd"}) pluck 
+  	{
+		"date": '$$',
+		"slots" : $ map {
+			"scheduleID": ($.schedule.reference splitBy("/"))[-1],
+			"id": $.id,
+			"start": (($.start as DateTime) >> |-07:00|) as String {format: "HH:mm"},
+			"end": (($.end as DateTime) >> |-07:00|) as String {format: "HH:mm"}
+		}
+	}
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="getPatientInfoSubFlow" doc:id="45a6ec24-e25e-47d7-8d2c-7b76d3d89a0b">
+        <ee:transform doc:name="Set id" doc:id="3f71c8f2-7d00-46b3-8c11-ed8080654da0">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="GET Patient" doc:id="ba16b273-1d2a-4da9-a018-ccd68d7d20cc"
+            config-ref="ehr-system-api" path="/Patient/{id}">
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+	id : vars.id
+}]]]></http:uri-params>
+            <http:response-validator>
+                <http:success-status-code-validator values="200,404" />
+            </http:response-validator>
+        </http:request>
+        <ee:transform doc:name="Create JSON response for Portal" doc:id="841126c9-4f86-4bed-917b-d1eb12301314">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if(attributes.statusCode == 200)
+{
+    name : {
+        family : payload.name[0].family[0],
+        given  : payload.name[0].given[0],
+        prefix : payload.name[0].prefix[0],
+        suffix : payload.name[0].suffix[0]
+    },
+    phone : payload.telecom[0].value,
+    gender: payload.gender,
+    birthDate: payload.birthDate,
+    careProvider : if (not isEmpty(payload.generalPractitioner)) (payload.generalPractitioner[0].reference splitBy "/")[1] else null,
+    address: {
+        line       : payload.address[0].line[0],
+        city       : payload.address[0].city,
+        state      : payload.address[0].state,
+        postalCode : payload.address[0].postalCode,
+        country    : payload.address[0].country
+    }
+} else payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="putPatientInfoSubFlow" doc:id="1511586b-0a74-4816-8fe9-a94b9ad4b5cd">
+        <ee:transform doc:name="Set id" doc:id="8ae30024-7ddb-46e3-995c-2ed9af495706">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Prepare data for update" doc:id="cfce4b36-7cb8-46f6-9394-48e89b99d095">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"resourceType": "Patient",
+	"id": vars.id,
+	"name": [
+	    {
+			"use": "official",
+			"family": [payload.name.family default ""],
+			"given" : [payload.name.given default ""],
+			"prefix": [payload.name.prefix default ""],
+			"suffix": [payload.name.suffix default ""]
+		}
+  	],
+	"telecom": [
+	    {
+			"system": "phone",
+			"value": payload.phone,
+			"use": "home"
+		}
+  	],
+	"gender": payload.gender default "male",
+	"birthDate": payload.birthDate default "1970-02-12",
+	"address": [
+	    {
+			"line": [payload.address.line default ""],
+			"city": payload.address.city default "",
+			"district": payload.address.district default "",
+			"state": payload.address.state default "",
+			"postalCode": payload.address.postalCode default "",
+			"country": payload.address.country default ""
+		}
+  	],
+	"generalPractitioner": [
+	    {
+			"reference": "Practitioner/" ++ payload.careProvider
+		}
+  	]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <http:request method="PUT" doc:name="PUT Patient into EHR" doc:id="b5621b95-37de-494f-ba5c-76687bb07610"
+            config-ref="ehr-system-api" path="/Patient/{id}">
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : vars.id
+}]]]></http:uri-params>
+            <http:response-validator>
+                <http:success-status-code-validator values="200,404" />
+            </http:response-validator>
+        </http:request>
+    </sub-flow>
+
+    <sub-flow name="getPatientHealthSubFlow" doc:id="daed836b-70e2-4f26-ab4a-5d0185778864">
+        <ee:transform doc:name="Set id" doc:id="01fd3b25-789e-4508-8f51-b3be20ccfc60">
+            <ee:message>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="Get Conditions from the EHR" doc:id="e27ae9b9-1edb-4f31-8fb3-9fa1580b443e"
+            config-ref="ehr-system-api" path="/Patient/{id}/Condition">
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+    id : vars.id
+}]]]></http:uri-params>
+        </http:request>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="6e4c5c89-39a8-4283-8c50-e0e33fcc4f23"
+            doc:name="Create variable 'conditions'">
+            <ee:variables>
+                <ee:set-variable variableName="conditions"><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="Get Allergies from the EHR" doc:id="14401b3d-d370-4639-b4d0-0f1e9b11040a"
+            config-ref="ehr-system-api" path="/Patient/{id}/AllergyIntolerance">
+            <http:uri-params><![CDATA[#[output application/java
+---
+{
+    id : vars.id
+}]]]></http:uri-params>
+        </http:request>
+        <ee:transform doc:name="Create variable 'allergies'" doc:id="4709bd57-9d9f-4a1d-a766-b5f6ef7a9554">
+            <ee:message>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="allergies"><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Prepare response" doc:id="a8dacc19-696b-4c6d-9bfc-9fc0a6aaac9b">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun getAllergyStatus(allergyStatus) =
+    if(allergyStatus != null) {
+	(status: 'true') if allergyStatus == 'confirmed',
+	(status: 'false') if allergyStatus == 'refuted',
+	(status: 'NA') if allergyStatus == 'unconfirmed'
+} else {
+	status: null
+}
+fun getConditionStatus(conditionStatus) =
+    if (conditionStatus != null) {
+	(status: 'true') if(conditionStatus == 'confirmed'),
+	(status: 'false') if(conditionStatus == 'refuted'),
+	(status: 'NA') if(conditionStatus == 'unknown')
+}else {
+	status: null
+}
+---
+{
+	conditions: if(vars.conditions.total > 0) vars.conditions.entry map using(condition = $.resource)
+    {
+		id          : condition.id,
+		onsetDate   : condition.onsetDateTime,
+		code        : condition.code.coding[0].code,
+		system      : condition.code.coding[0].system,
+		name        : condition.code.coding[0].display,
+		status      : getConditionStatus(condition.verificationStatus).status
+	} else [],
+	allergies: if(vars.allergies.total > 0) vars.allergies.entry map using (allergy = $.resource)
+    {
+		id          : allergy.id,
+		onsetDate   : allergy.assertedDate,
+		name        : allergy.reaction[0].substance.coding[0].display,
+		status      : getAllergyStatus(allergy.verificationStatus).status
+	} else []
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="putPatientHealthSubFlow" doc:id="fe19da0c-fa25-4315-898c-a916609c5741">
+        <ee:transform doc:name="Set variables" doc:id="e497b41d-ed8b-41ee-b72f-9b20b7d1104a">
+            <ee:message>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+                <ee:set-variable variableName="conditions"><![CDATA[%dw 2.0
+output application/java
+---
+payload.conditions]]></ee:set-variable>
+                <ee:set-variable variableName="allergies"><![CDATA[%dw 2.0
+output application/java
+---
+payload.allergies]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <scatter-gather doc:name="Scatter-Gather" doc:id="07bc6775-24a3-4e62-8ffd-8fe38615368f">
+            <route>
+                <flow-ref doc:name="Call upsertConditionsSubFlow" doc:id="05faabc8-cc83-4415-9d52-95dbaf7e5644"
+                    name="upsertConditionsSubFlow" />
+            </route>
+            <route>
+                <flow-ref doc:name="Call upsertAllergiesSubFlow" doc:id="922e0ca4-3dde-4cc8-a3cf-d2c93a258f2a"
+                    name="upsertAllergiesSubFlow" />
+            </route>
+        </scatter-gather>
+        <ee:transform doc:name="Set response" doc:id="ee0ec329-e327-40c3-aef5-aa24bd6f2877">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "The PUT of health information has finished."
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="upsertConditionsSubFlow" doc:id="81b36244-542b-41ba-b9ac-cffd55dd443a">
+        <foreach doc:name="For Each Condition" doc:id="172c6e61-83e2-4775-a371-c7ee0fd0bfeb" collection="#[vars.conditions]">
+            <http:request method="GET" doc:name="GET /Condition?code=x" doc:id="9b4cb539-4c67-42a2-8df4-ced40f1ac8e6"
+                config-ref="ehr-system-api" path="/Condition" target="condition">
+                <http:query-params><![CDATA[#[output application/java
+---
+{
+	"code" : payload.code,
+	"patient" : "Patient/" ++ vars.id
+}]]]></http:query-params>
+                <http:response-validator>
+                    <http:success-status-code-validator values="200,404" />
+                </http:response-validator>
+            </http:request>
+            <ee:transform doc:name="Set EHR Condition ID" doc:id="4c60ded3-e838-4c0e-96f8-2832b39832f9">
+                <ee:message>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="conditionId"><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.condition.total > 0) vars.condition.entry[0].resource.id else null]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            <choice doc:name="Condition missing in EHR?" doc:id="5c997a75-5879-4215-aa04-89011613f8ac">
+                <when expression="#[vars.conditionId == null]">
+                    <ee:transform doc:name="Prepare to create" doc:id="93bc8bd7-a042-467b-a9c3-802beb85978e">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun getVerificationStatus(conditionStatus) = if(conditionStatus != null) {
+	(status: 'confirmed') if(conditionStatus == 'true'),
+	(status: 'refuted') if(conditionStatus == 'false'),
+	(status: 'unknown') if(conditionStatus == 'NA')
+} else status: null
+---
+{
+	resourceType: "Condition",
+	subject: {
+	  reference: "Patient/" ++ vars.id
+	},
+	asserter: {
+		reference: "Patient/" ++ vars.id
+	},
+	code: {
+	  coding: [
+	    {
+	      code: payload.code,
+	      display: payload.name,
+	      system: payload.system
+	    }
+	  ],
+	  (text: payload.name)  if(payload.name != null)
+	},
+	(onsetDateTime: payload.onsetDate) if(payload.onsetDate != null),
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></ee:set-payload>
+                        </ee:message>
+                    </ee:transform>
+                    <http:request method="POST" doc:name="POST /Condition" doc:id="5f589678-1346-45c7-bf29-4866e6e8c45b"
+                        config-ref="ehr-system-api" path="/Condition" />
+                </when>
+                <otherwise>
+                    <ee:transform doc:name="Prepare for update" doc:id="339fc56f-ae44-4e4c-b2e7-4f03c845fe32">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun getVerificationStatus(conditionStatus) = 
+	if(conditionStatus != null) {
+		(status: 'confirmed') if(conditionStatus == 'true'),
+		(status: 'refuted') if(conditionStatus == 'false'),
+		(status: 'unknown') if(conditionStatus == 'NA')
+	} else 
+		 status: null
+---
+{
+	id: vars.conditionId,
+	resourceType: "Condition",
+	subject: {
+	  reference: "Patient/" ++ vars.id
+	},
+	asserter: {
+		reference: "Patient/" ++ vars.id
+	},
+	code: {
+	  coding: [
+	    {
+	      code: payload.code,
+	      display: payload.name,
+	      system: payload.system
+	    }
+	  ],
+	  text: payload.name
+	},
+	(onsetDateTime: payload.onsetDate) if(payload.onsetDate != null),
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></ee:set-payload>
+                        </ee:message>
+                    </ee:transform>
+                    <http:request method="PUT" doc:name="PUT /Condition/{id}" doc:id="09dbeb0d-1e61-4175-96d2-1ff31c235712"
+                        config-ref="ehr-system-api" path="/Condition/{id}">
+                        <http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : vars.conditionId
+}]]]></http:uri-params>
+                    </http:request>
+                </otherwise>
+            </choice>
+        </foreach>
+    </sub-flow>
+    <sub-flow name="upsertAllergiesSubFlow" doc:id="db8d62d3-2ee6-4fc8-804a-af5a722ecca8">
+        <foreach doc:name="For Each Allergy" doc:id="aec9ce7d-8cab-4ce7-80f4-3589b82de236" collection="#[vars.allergies]">
+            <http:request method="GET" doc:name="GET /AllergyIntolerance?substance=x" doc:id="7ee8bdac-978b-488d-9cc6-4bab9005afc0"
+                config-ref="ehr-system-api" path="/AllergyIntolerance" target="allergy">
+                <http:query-params><![CDATA[#[output application/java
+---
+{
+	"substance" : payload.name,
+	"patient" : "Patient/" ++ vars.id
+}]]]></http:query-params>
+                <http:response-validator>
+                    <http:success-status-code-validator values="200,404" />
+                </http:response-validator>
+            </http:request>
+            <ee:transform doc:name="Set EHR AllergyIntolerance ID" doc:id="a02279a0-d75d-4144-ac32-a0c2bf4144e6">
+                <ee:message>
+                </ee:message>
+                <ee:variables>
+                    <ee:set-variable variableName="allergyId"><![CDATA[%dw 2.0
+output application/java
+---
+if (vars.allergy.total > 0) vars.allergy.entry[0].resource.id else null]]></ee:set-variable>
+                </ee:variables>
+            </ee:transform>
+            <choice doc:name="AllergyIntolerance missing in EHR?" doc:id="4add17b9-9efd-463e-a6de-c97d083a97e9">
+                <when expression="vars.allergyId == null">
+                    <ee:transform doc:name="Prepare to create" doc:id="ccc1ba14-be04-4cf7-a821-ec3ac998631e">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun getVerificationStatus(allergyStatus) = if(allergyStatus != null) {
+	(status: 'confirmed') if(allergyStatus == 'true'),
+	(status: 'refuted') if(allergyStatus == 'false'),
+	(status: 'unconfirmed') if(allergyStatus == 'NA')
+} else 
+	 status: null
+---
+{
+	resourceType: "AllergyIntolerance",
+	patient: {
+		reference: "Patient/" ++ vars.id
+	},
+	reporter: {
+		reference: "Patient/" ++ vars.id
+	},
+	reaction: [
+		{
+			manifestation: [
+		        {
+					text: "symptoms"
+				}
+            ],
+			substance: {
+				coding: [
+          			{
+						display: payload.name
+					}
+        		]
+			}
+		}
+	],
+	(assertedDate: payload.onsetDate) if(payload.onsetDate != null),
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></ee:set-payload>
+                        </ee:message>
+                    </ee:transform>
+                    <http:request method="POST" doc:name="POST /AllergyIntolerance" doc:id="90e7aa58-e1a6-42eb-be44-d4b64af5acd4"
+                        config-ref="ehr-system-api" path="/AllergyIntolerance" />
+                </when>
+                <otherwise>
+                    <ee:transform doc:name="Prepare for update" doc:id="91547648-0ad7-4887-aaa7-349029e6561b">
+                        <ee:message>
+                            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun getVerificationStatus(allergyStatus) = if(allergyStatus != null) {
+	(status: 'confirmed') if(allergyStatus == 'true'),
+	(status: 'refuted') if(allergyStatus == 'false'),
+	(status: 'unconfirmed') if(allergyStatus == 'NA')
+} else 
+	 status: null
+---
+{
+	id: vars.allergyId,
+	resourceType: "AllergyIntolerance",
+	patient: {
+	  reference: "Patient/" ++ vars.id
+	},
+	reporter: {
+		reference: "Patient/" ++ vars.id
+	},
+	reaction: [
+		{
+			manifestation: [
+		        {
+					text: "symptoms"
+				}
+            ],
+			substance: {
+				coding: [
+          			{
+						display: payload.name
+					}
+        		]
+			}
+		}
+	],
+	(assertedDate: payload.onsetDate) if(payload.onsetDate != null),
+	verificationStatus: getVerificationStatus(payload.status).status
+}]]></ee:set-payload>
+                        </ee:message>
+                    </ee:transform>
+                    <http:request method="PUT" doc:name="PUT /AllergyIntolerance/{id}" doc:id="07390c6a-391e-4f7a-a6e3-905f4859a850"
+                        config-ref="ehr-system-api" path="/AllergyIntolerance/{id}">
+                        <http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : vars.allergyId
+}]]]></http:uri-params>
+                    </http:request>
+                </otherwise>
+            </choice>
+        </foreach>
+    </sub-flow>
+
+    <sub-flow name="postPatientAppointmentsSubFlow" doc:id="80062733-d249-4d84-8b09-e5b5be20141c">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="5a3c8091-1003-4d2b-a51a-8cc54628bfbe"
+            doc:name="Prepare request">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	patientId      : attributes.uriParams.id,
+	practitionerId : payload.practitionerID,
+	slotId         : payload.slotID
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="POST" doc:name="POST /appointments" doc:id="07658f48-1d2b-4211-a38b-408d30867521"
+            config-ref="appointments-process-api" path="/appointments">
+            <http:response-validator>
+                <http:success-status-code-validator values="200,201,422" />
+            </http:response-validator>
+        </http:request>
+        <choice doc:name="Successful?" doc:id="ea2c73ab-c30d-4480-8f76-2aea0cf3cb2a">
+            <when expression='attributes.statusCode == 201'>
+                <set-payload value="#[null]" doc:name="NullPayload" doc:id="b747c152-ea97-44af-adc0-8164accf0f68" />
+            </when>
+            <otherwise>
+                <ee:transform doc:name="Set response" doc:id="d678b39d-dc11-43c3-910c-41794fedf0c1">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: payload.message
+}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[422]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+    <sub-flow name="getPatientAppointmentsHistorySubFlow" doc:id="4e037b94-c0b3-418f-9122-d699fe692290">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="f6d8197b-f1fc-496b-a858-fc3d58c7d746"
+            doc:name="Set id">
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="GET Appointments" doc:id="4222b3ce-0e2a-4e32-a16e-622531ea66bf"
+            config-ref="appointments-process-api" path="/appointments">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	"patientId" : vars.id,
+	"startBefore" : (now() >> |+00:00|) as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+            xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+            doc:id="0d11fcff-0b11-45ab-807a-3f43c649237a" doc:name="Prepare response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if (not isEmpty(payload))
+	((payload orderBy $.start) map 
+	{
+		start    : ($.start as DateTime >> |-07:00|) as String {format: "E MM/dd/YY 'at' hh:mm a"},
+		end      : ($.end as DateTime >> |-07:00|)   as String {format: "E MM/dd/YY 'at' hh:mm a"},
+		actor    : $.practitioner.name,
+		status   : if ($.status == 'booked') 'fulfilled' else 'cancelled'
+	}) 
+else []]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="getPatientAppointmentsUpcommingSubFlow" doc:id="999b561d-0994-46ef-a56f-755c2b770f57">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="2c277c82-4495-4ba8-8b99-2fe9889dbace"
+            doc:name="Set id">
+            <ee:variables>
+                <ee:set-variable variableName="id"><![CDATA[attributes.uriParams.id]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <http:request method="GET" doc:name="GET Appointments" doc:id="8aef1b5e-e026-4b7b-a3b0-7f412cb6d324"
+            config-ref="appointments-process-api" path="/appointments">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	"patientId" : vars.id,
+	"startAfter" : (now() >> |+00:00|) as String {format: "yyyy-MM-dd'T'HH:mm:ss'Z'"}
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+            xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd"
+            doc:id="58a71904-68ee-4049-a304-94ad518728f8" doc:name="Prepare response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+if (not isEmpty(payload))
+	((payload orderBy $.start) map 
+	{
+		start    : ($.start as DateTime >> |-07:00|) as String {format: "E MM/dd/YY 'at' hh:mm a"},
+	    end      : ($.end as DateTime >> |-07:00|)   as String {format: "E MM/dd/YY 'at' hh:mm a"},
+	    actor    : $.practitioner.name
+		
+	}) 
+else []]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+</mule>
