@@ -164,9 +164,9 @@ output application/json
         <flow-ref doc:name="Call getPractitionersSubFlow" doc:id="ab18f980-8ae6-4314-9710-24791204033f" name="getPractitionersSubFlow" />
     </flow>
 
-    <flow name="get:\patient\(id)\appointments\upcomming:healthcare_portal_experience_api-config">
-        <flow-ref doc:name="Call getPatientAppointmentsUpcommingSubFlow" doc:id="9624e001-e246-40d8-b7ab-f3f6f1ff1651"
-            name="getPatientAppointmentsUpcommingSubFlow" />
+    <flow name="get:\patient\(id)\appointments\upcoming:healthcare_portal_experience_api-config">
+        <flow-ref doc:name="Call getPatientAppointmentsUpcomingSubFlow" doc:id="9624e001-e246-40d8-b7ab-f3f6f1ff1651"
+            name="getPatientAppointmentsUpcomingSubFlow" />
     </flow>
 
     <flow name="post:\patient\(id)\appointments:application\json:healthcare_portal_experience_api-config">
