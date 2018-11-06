@@ -763,7 +763,7 @@ else []]]></ee:set-payload>
         </ee:transform>
     </sub-flow>
 
-    <sub-flow name="getPatientAppointmentsUpcommingSubFlow" doc:id="999b561d-0994-46ef-a56f-755c2b770f57">
+    <sub-flow name="getPatientAppointmentsUpcomingSubFlow" doc:id="999b561d-0994-46ef-a56f-755c2b770f57">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="2c277c82-4495-4ba8-8b99-2fe9889dbace"
             doc:name="Set id">
             <ee:variables>

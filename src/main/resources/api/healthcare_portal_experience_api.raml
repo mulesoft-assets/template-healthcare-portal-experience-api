@@ -116,7 +116,7 @@ uses:
           example: !include ./examples/appointment-portal-request.json
       responses:
         201: 
-    /upcomming:
+    /upcoming:
       get:
         displayName: Upcoming Appointments for Patient
         description: GET upcoming appointments for specific patient
@@ -125,7 +125,7 @@ uses:
             body:
               application/json:
                 type: DataTypes.Appointment[]
-                example: !include ./examples/upcomming-appointments-response.json
+                example: !include ./examples/upcoming-appointments-response.json
     /history:
       get:
         displayName: Past Appointments for Patient
