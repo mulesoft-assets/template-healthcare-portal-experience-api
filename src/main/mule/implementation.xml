@@ -240,8 +240,8 @@ if(attributes.statusCode == 200)
     name : {
         family : payload.name[0].family[0],
         given  : payload.name[0].given[0],
-        prefix : payload.name[0].prefix[0],
-        suffix : payload.name[0].suffix[0]
+        prefix : if(payload.name[0].prefix[0] != null) payload.name[0].prefix[0] else "",
+        suffix : if(payload.name[0].suffix[0] != null) payload.name[0].suffix[0] else ""
     },
     phone : payload.telecom[0].value,
     gender: payload.gender,
