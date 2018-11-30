@@ -601,7 +601,7 @@ fun getVerificationStatus(allergyStatus) = if(allergyStatus != null) {
 	patient: {
 		reference: "Patient/" ++ vars.id
 	},
-	reporter: {
+	recorder: {
 		reference: "Patient/" ++ vars.id
 	},
 	reaction: [
@@ -646,7 +646,7 @@ fun getVerificationStatus(allergyStatus) = if(allergyStatus != null) {
 	patient: {
 	  reference: "Patient/" ++ vars.id
 	},
-	reporter: {
+	recorder: {
 		reference: "Patient/" ++ vars.id
 	},
 	reaction: [
