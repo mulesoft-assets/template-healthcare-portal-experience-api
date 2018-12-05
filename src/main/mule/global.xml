@@ -10,12 +10,12 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
 http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
 
+	<global-property doc:name="Global Property" doc:id="70fb0c09-c597-4e81-b334-b185223ffb30" name="mule.env"
+        value="dev" />
     <configuration-properties doc:name="Configuration properties" doc:id="4bd80986-1bbd-4f3c-a8a0-22fdf76da240"
         file="common.properties" />
     <configuration-properties doc:name="Configuration properties" doc:id="66ef2b0b-dd66-4582-aac4-871cbaf66a5e"
         file="mule.${mule.env}.properties" />
-    <global-property doc:name="Global Property" doc:id="9f2622ca-328e-49a6-8f05-c888498efec9" name="mule.env"
-        value="dev" />
 
     <http:listener-config name="healthcare_portal_experience_api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${https.port}" tlsContext="TLS_Context"
