@@ -112,3 +112,9 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + api.onboarding.host `onboarding_process_api_hostname`
 + api.onboarding.port `80`
 + api.onboarding.basepath `/api`
+
+**API Autodiscovery**
+
++ api.id `api_id`
++ anypoint.platform.client_id `anypoint_platform_client_id`
++ anypoint.platform.client_secret `anypoint_platform_client_secret`
