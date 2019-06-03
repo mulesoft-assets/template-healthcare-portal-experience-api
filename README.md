@@ -7,7 +7,7 @@ This template is subject to the conditions of the [MuleSoft License Agreement](h
 
 # Use Case
 
-As a Portal User I want a service to request and update Clinical data from an EHR system and Salesforce Health Cloud.
+As a portal user, I want a service to request and update clinical data from an EHR system and Salesforce Health Cloud.
 
 # Considerations
 
@@ -15,27 +15,30 @@ To make this Anypoint Template run, there are certain preconditions that must be
 
 ## CloudHub Security Considerations
 
-- When VPC is configured in a Cloudhub account, two additional ports are available for internal calls: 8091 and 8092.
+- When a VPC is configured in a CloudHub account (in Anypoint Platform > Runtime Manager), two additional ports are available for internal calls: 8091 and 8092.
 - ${http.port} and ${https.port} are still reserved for external endpoints and should not be used for setting internal port values.
-- Internal endpoints can be configured using proposed placeholders: ${http.internal.port} and ${https.internal.port}.
-- URL naming convention: calls between applications within the same VPC: mule-worker-internal-<appname\>.cloudhub.io
+- Internal endpoints can be configured using these placeholders: ${http.internal.port} and ${https.internal.port}.
+- URL naming convention: calls between applications within the same VPC: `mule-worker-internal-<appname\>.cloudhub.io`
 - CloudHub does not replace provided SSL certificates for internal calls, therefore they should be valid for the applicable URL naming convention.
 
 ## API Security Considerations
+
 Deploy the Experience API to CloudHub and managed using API Manager.
 
 ### Expose External Endpoints with HTTPS and Basic Authentication
+
 - Trigger using SFDC Health Cloud over HTTPS.
 
 ### Expose Internal Endpoints with RAML and HTTPS
+
 - Interconnect internally with EHR FHIR System API, Appointments Process API and Onboarding Process API which are deployed within a CloudHub VPC.
 
 # Run it!
 Simple steps to get Healthcare Portal to FHIR EHR Experience API running.
 
 ## Run On Premises
-In this section we detail the way you should run your Anypoint Template on your computer.
 
+In this section we detail the way you should run your Anypoint Template on your computer.
 
 ### Where to Download Anypoint Studio and the Mule Runtime
 
@@ -65,20 +68,21 @@ After opening your template in Anypoint Studio, follow these steps to run it:
 Complete all properties in one of the property files, for example in `mule.prod.properties` and run your app with the corresponding environment variable to use it. To follow the example, use `mule.env=prod`.
 
 ## Run in CloudHub
+
 After adding your application to Runtime Manager, go to **Manage Application** > **Properties** to set the environment variables listed in the "Properties to Configure" section.
 
 ### Deploy in CloudHub
 
 In Studio, right click your project name in Package Explorer and select **Anypoint Platform** > **Deploy on CloudHub**.
 
-
-
 ## Properties to Configure
-In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. 
+
+To use this template you need to configure properties (credentials, configurations, etc.) either in properties file or in CloudHub as environment variables. 
 
 ### Application Properties
 
 **HTTPS Configuration**
+
 - https.port `8082`
 - keystore.location `keystore.jks`
 - keystore.password `pass123!`
